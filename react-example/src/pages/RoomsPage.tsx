@@ -1,5 +1,5 @@
-import React,{useState} from "react";
-import RoomCard,{type Room} from "../components/RoomCard";
+import React, { useState } from "react";
+import RoomCard, { type Room } from "../components/RoomCard";
 import SmoothCarousel from "../components/Carousel";
 
 export const roomsData: Room[] = [
@@ -85,49 +85,50 @@ export const roomsData: Room[] = [
   },
 ];
 
-const RoomsPage:React.FC=()=>{
-const [roomIndex,setRoomIndex]=useState(0);
+const RoomsPage: React.FC = () => {
+  const [roomIndex, setRoomIndex] = useState(0);
 
-  const handlePreviousRoom=()=>{
-    setRoomIndex((prev)=>(prev>0?prev-1:prev));
+  const handlePreviousRoom = () => {
+    setRoomIndex((prev) => (prev > 0 ? prev - 1 : prev));
   }
 
-  const handleNextRoom=()=>{
-    setRoomIndex((prev)=>(prev<roomsData.length?prev+1:prev))
+  const handleNextRoom = () => {
+    setRoomIndex((prev) => (prev < roomsData.length - 1 ? prev + 1 : prev))
   }
 
-  const handleOnJumpTo=(index:number)=>{
+  const handleOnJumpTo = (index: number) => {
     setRoomIndex(index);
   }
 
-  return(
-    <div className="min-h-screen bg-gray-50 py-8">
-        <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-                <h1 className="text-4xl font-bold text-gray-800 mb-4">
-                    Rooms
-                </h1>
-                <p className="text-lg text-gray-600">Browse and book available rooms</p>
-            </div>
-
-            <SmoothCarousel
-            title="Room Cards"
-            items={roomsData}
-            currentIndex={roomIndex}
-            onPrevious={handlePreviousRoom}
-            onNext={handleNextRoom}
-            onJumpTo={handleOnJumpTo}
-            renderCard={(item,index,currentIndex)=>(
-            <RoomCard
-                room={item as Room}
-                isActive={index===currentIndex}
-            />
-            )}
-        />
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 transition-colors duration-300">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-200 mb-4 transition-colors duration-300">
+            Rooms
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400 transition-colors duration-300">
+            Browse and book available rooms
+          </p>
         </div>
+
+        <SmoothCarousel
+          title="Room Cards"
+          items={roomsData}
+          currentIndex={roomIndex}
+          onPrevious={handlePreviousRoom}
+          onNext={handleNextRoom}
+          onJumpTo={handleOnJumpTo}
+          renderCard={(item, index, currentIndex) => (
+            <RoomCard
+              room={item as Room}
+              isActive={index === currentIndex}
+            />
+          )}
+        />
+      </div>
     </div>
   )
 };
 
 export default RoomsPage;
-

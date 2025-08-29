@@ -4,6 +4,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 import NavBarLayout from "./layouts/NavBar";
 import RoomsPage from "./pages/RoomsPage";
 import EmployeesPage from "./pages/EmployeePage";
+import { ThemeProvider } from "./context/ThemeContext";
 
 const router=createBrowserRouter(
   createRoutesFromElements(
@@ -17,7 +18,11 @@ const router=createBrowserRouter(
 )
 
 const App = () => {
-  return <RouterProvider router={router}/>;
+  return (
+  <ThemeProvider>
+    <RouterProvider router={router}/>
+  </ThemeProvider>
+  );
 }
 
 export default App
