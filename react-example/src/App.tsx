@@ -1,28 +1,58 @@
-import { Route,createBrowserRouter,createRoutesFromElements,RouterProvider } from "react-router-dom";
-import HomePage from './pages/HomePage';
+import { Route, createBrowserRouter, createRoutesFromElements, RouterProvider } from "react-router-dom";
 import NotFoundPage from "./pages/NotFoundPage";
 import NavBarLayout from "./layouts/NavBar";
 import RoomsPage from "./pages/RoomsPage";
 import EmployeesPage from "./pages/EmployeePage";
 import { ThemeProvider } from "./context/ThemeContext";
+import { AuthProvider } from "./context/AuthContext";
+import LoginPage from "./pages/LoginPage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import HomePage from "./pages/HomePage";
 
-const router=createBrowserRouter(
+const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route path='/' element={<NavBarLayout/>}>
-    <Route index element={<HomePage/>} />
-    <Route path='/rooms' element={<RoomsPage/>}/>
-    <Route path='/users' element={<EmployeesPage/>}/>
-    <Route path='*' element={<NotFoundPage/>}/>
+    <>
+    <Route path="/" element={<LoginPage />}/>
+      <Route element={<NavBarLayout/>} >
+      <Route
+        path='/home'
+        element={
+          <ProtectedRoute>
+            <HomePage/>
+          </ProtectedRoute>
+        }
+      />
+      <Route 
+        path="/rooms" 
+        element={
+          <ProtectedRoute>
+            <RoomsPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/users" 
+        element={
+          <ProtectedRoute>
+            <EmployeesPage />
+          </ProtectedRoute>
+        } 
+      />
+      
+      <Route path="*" element={<NotFoundPage />} />
     </Route>
+    </>
   )
-)
+);
 
 const App = () => {
   return (
-  <ThemeProvider>
-    <RouterProvider router={router}/>
-  </ThemeProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
+    </ThemeProvider>
   );
-}
+};
 
-export default App
+export default App;
