@@ -8,6 +8,7 @@ import { AuthProvider } from "./context/AuthContext";
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import HomePage from "./pages/HomePage";
+import RegisterEmployeePage from "./pages/RegisterEmployeePage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -33,10 +34,18 @@ const router = createBrowserRouter(
       <Route 
         path="/users" 
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredRole="admin">
             <EmployeesPage />
           </ProtectedRoute>
         } 
+      />
+      <Route
+        path='/registeruser'
+        element={
+          <ProtectedRoute requiredRole="admin">
+            <RegisterEmployeePage/>
+          </ProtectedRoute>
+        }
       />
       
       <Route path="*" element={<NotFoundPage />} />

@@ -23,8 +23,15 @@ const mockUsers=[
         email:"admin@gmail.com",
         password:'Sarah@123',
         role:'admin'
+    },
+    {
+        id:2,
+        name:"Sam Porter",
+        email:"sam@employee.com",
+        password:"Sam@123",
+        role:'employee'
     }
-]
+];
 
 const AuthContext=createContext<AuthContextType|undefined>(undefined);
 

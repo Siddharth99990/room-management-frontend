@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Users, Building2, Sun, Moon, Menu, X , LogOut } from 'lucide-react';
+import { Home, Users, Building2, Sun, Moon, Menu, X , LogOut, UserCheck } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -33,7 +33,8 @@ const NavBarLayout: React.FC = () => {
     const navLinks = isAuthenticated ? [
         { path: '/home', label: 'Home', icon: Home },
         { path: '/rooms', label: 'Rooms', icon: Building2 },
-        { path: '/users', label: 'Users', icon: Users },
+        ...(user?.role==='admin'?[{path:'/registeruser',label:'Register',icon:UserCheck},
+        { path: '/users', label: 'Users', icon: Users },]:[])
     ] : [];
 
     return (
@@ -68,9 +69,6 @@ const NavBarLayout: React.FC = () => {
                             
                             {isAuthenticated && user && (
                                 <div className="flex items-center space-x-4 border-l border-gray-200 dark:border-gray-700 pl-4">
-                                    <span className="text-sm text-gray-600 dark:text-gray-300">
-                                        Welcome, {user.name}
-                                    </span>
                                     <button
                                         onClick={handleLogout}
                                         className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 transition-all duration-200"

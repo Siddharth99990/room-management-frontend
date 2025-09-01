@@ -75,7 +75,7 @@ const LoginPage = () => {
       
       if (success) {
         console.log('Login successful');
-        const from = location.state?.from?.pathname || '/rooms';
+        const from = location.state?.from?.pathname || '/home';
         navigate(from, { replace: true });
       } else {
         setError("Invalid email or password");
@@ -193,7 +193,6 @@ const LoginPage = () => {
                     value={formData.password}
                     onChange={handleInputChange}
                     className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-300"
-                    autoComplete="current-password"
                     required
                   />
                 </div>
