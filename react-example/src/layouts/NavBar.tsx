@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Users, Building2, Sun, Moon, Menu, X , LogOut, UserCheck } from 'lucide-react';
+import { Home, Users, Building2, Sun, Moon, Menu, X , LogOut, UserCheck, Check } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -33,13 +33,14 @@ const NavBarLayout: React.FC = () => {
     const navLinks = isAuthenticated ? [
         { path: '/home', label: 'Home', icon: Home },
         { path: '/rooms', label: 'Rooms', icon: Building2 },
+        { path:'/bookroom',label:'Book',icon:Check},
         ...(user?.role==='admin'?[{path:'/registeruser',label:'Register',icon:UserCheck},
         { path: '/users', label: 'Users', icon: Users },]:[])
     ] : [];
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-            <nav className="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700 transition-colors duration-300 relative z-50">
+            <nav className="sticky top-0 bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700 transition-colors duration-300 relative z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
                         <div className="flex items-center">

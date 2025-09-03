@@ -50,6 +50,26 @@ const RegisterEmployeePage = () => {
             return false;
         }
 
+       if(!/[A-Z]/.test(formData.password)){
+            setError("Password must contain atleast one uppercase character");
+            return false;
+       }
+
+       if(!/[a-z]/.test(formData.password)){
+            setError("Password must contain atleast one lowercase character");
+            return false;
+       }
+
+       if(!/\d/.test(formData.password)){
+            setError("Password must contain atleast one digit");
+            return false;
+       }
+
+       if(!/[^A-Za-z0-9]/.test(formData.password)){
+            setError("Password must contain atleast one special character");
+            return false;
+       }
+
         if (!formData.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
             setError('Email must follow the format email@domain.com');
             return false;

@@ -9,6 +9,7 @@ import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import HomePage from "./pages/HomePage";
 import RegisterEmployeePage from "./pages/RegisterEmployeePage";
+import BookRoomPage from "./pages/BookRoomPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -31,6 +32,14 @@ const router = createBrowserRouter(
           </ProtectedRoute>
         } 
       />
+      <Route
+        path='/bookroom'
+        element={
+          <ProtectedRoute>
+            <BookRoomPage/>
+          </ProtectedRoute>
+        }
+      />
       <Route 
         path="/users" 
         element={
@@ -47,7 +56,6 @@ const router = createBrowserRouter(
           </ProtectedRoute>
         }
       />
-      
       <Route path="*" element={<NotFoundPage />} />
     </Route>
     </>
