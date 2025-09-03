@@ -1,94 +1,92 @@
 import React,{useContext,createContext,useState,useEffect} from "react";
-
-interface User{
-    id:number;
-    name:string;
-    email:string;
-    password?:string;
-    role:'admin'|'employee';
-}
+import { authService,type User } from "../api/auth.service";
 
 interface AuthContextType{
     user:User|null;
-    login:(email:string,password:string)=>Promise<boolean>;
-    logout:()=>void;
+    login:(email:string,password:string)=>Promise<{success:boolean,message?:string}>;
+    logout:()=>Promise<void>;
     isAuthenticated:boolean;
     isLoading:boolean;
+    error:string|null;
+    clearError:()=>void;
 }
-
-const mockUsers=[
-    {
-        id:1,
-        name:'Sarah Johnson',
-        email:"admin@gmail.com",
-        password:'Sarah@123',
-        role:'admin'
-    },
-    {
-        id:2,
-        name:"Sam Porter",
-        email:"sam@employee.com",
-        password:"Sam@123",
-        role:'employee'
-    }
-];
 
 const AuthContext=createContext<AuthContextType|undefined>(undefined);
 
 export const AuthProvider:React.FC<{children:React.ReactNode}>=({children})=>{
     const [user,setUser]=useState<User|null>(null);
     const [isLoading,setIsLoading]=useState(true);
+    const [error,setError]=useState<string|null>(null);
 
     useEffect(()=>{
-        const checkAuthStatus=()=>{
-            try{
-                const savedUser=sessionStorage.getItem('user');
-                if(savedUser){
-                    setUser(JSON.parse(savedUser));
-                }
-            }catch(err:any){
-                console.error('Error checkning auth',err);
-            }finally{
-                setIsLoading(false);
-            }
-        };
         checkAuthStatus();
     },[]);
 
-    const login=async(email:string,password:string):Promise<boolean>=>{
+    const checkAuthStatus=async()=>{
         try{
             setIsLoading(true);
 
-            await new Promise(resolve=> setTimeout(resolve,500));
-
-            const foundUser=mockUsers.find(user =>user.email===email && user.password===password);
-
-            if(foundUser){
-                const{password:_,...userWithoutPassword}=foundUser;
-                setUser(userWithoutPassword as User);
-                sessionStorage.setItem("user",JSON.stringify(userWithoutPassword));
-                return true;
+            const response=await authService.checkAuth();
+            if(response.success && response.data?.user){
+                setUser(response.data.user);
             }
-            return false;
+        }catch(err:any){
+            console.error("Auth check failed:",err);
+            setUser(null);
+        }finally{
+            setIsLoading(false);
+        }
+    }
+
+    const login=async(email:string,password:string):Promise<{success:boolean; message?:string}>=>{
+        try{
+            setIsLoading(true);
+            setError(null);
+
+            const response=await authService.login({email,password});
+
+            if(response.success && response.data?.user){
+                setUser(response.data.user);
+                return {
+                    success:true,
+                    message:response.message
+                }
+            }
+
+            return {success:false,message:response.message||"Login failed"};
         }catch(err:any){
             console.error("Login error:",err);
-            return false;
+            setError(err.message||'An unexpected error occurred');
+            return {success:false,message:err.message};
         }finally{
             setIsLoading(false);
         }
     };
 
-    const logout=()=>{
-        setUser(null);
-        sessionStorage.removeItem('user');
+    const logout = async () => {
+        try {
+            setIsLoading(true);
+            await authService.logout();
+        } catch (err: any) {
+            console.error("Logout error:", err);
+        } finally {
+            setUser(null);
+            setIsLoading(false);
+        }
     };
+
+    const clearError=()=>{
+        setError(null);
+    }
 
     const value={
         user,
         login,
         logout,
         isAuthenticated:!!user,
-        isLoading
+        isLoading,
+        error,
+        clearError
     };
 
     return (

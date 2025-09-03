@@ -11,23 +11,32 @@ const LoginPage = () => {
     password: ''
   });
 
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated,isLoading,clearError,error:authError } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
     if (isAuthenticated) {
-      const from = location.state?.from?.pathname || '/';
+      const from = location.state?.from?.pathname || '/home';
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, navigate, location]);
+
+  useEffect(()=>{
+    if(authError){
+      setError(authError);
+    }
+  },[authError]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value
     }));
-    if (error) setError('');
+    if (error){ 
+      setError(''); 
+      clearError();
+    };
   };
 
   const validateEmail = (email: string): boolean => {
@@ -70,13 +79,11 @@ const LoginPage = () => {
     setIsSubmitting(true);
 
     try {
-      console.log('Login attempt:', { email: formData.email, password: formData.password });
+      console.log('Login attempt:', { email: formData.email });
       const success = await login(formData.email, formData.password);
       
       if (success) {
         console.log('Login successful');
-        const from = location.state?.from?.pathname || '/home';
-        navigate(from, { replace: true });
       } else {
         setError("Invalid email or password");
       }
@@ -87,6 +94,14 @@ const LoginPage = () => {
       setIsSubmitting(false);
     }
   };
+
+  if(isLoading){
+    return(
+     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+      </div>
+    )
+  }
 
   const features = [
     {
