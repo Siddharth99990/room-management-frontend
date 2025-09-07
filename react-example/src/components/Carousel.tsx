@@ -1,16 +1,15 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import type { Room } from "./RoomCard";
-import type { Employee } from "./EmployeeCard";
+import type { Room } from "../api/room.service";
 import type { Booking } from "./BookingsCard";
 
 const SmoothCarousel: React.FC<{
     title: string;
-    items: (Room | Employee|Booking)[];
+    items: (Room |Booking)[];
     currentIndex: number;
     onPrevious: () => void;
     onNext: () => void;
-    renderCard: (item: Room | Employee|Booking, index: number, currentIndex: number) => React.ReactNode;
+    renderCard: (item: Room|Booking, index: number, currentIndex: number) => React.ReactNode;
 }> = ({ title, items, currentIndex, onPrevious, onNext,renderCard }) => {
 
     const [isSmallScreen,setIsSmallScreen]=useState(false);
@@ -65,7 +64,7 @@ const SmoothCarousel: React.FC<{
                         const isBackground = !isSmallScreen && isNextBackground;
 
                         return (
-                            <div key={item.id}
+                            <div key={index}
                                 className={`absolute transition-all duration-500 ease-in-out left-1/2 ${
                                     isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
                                 } ${

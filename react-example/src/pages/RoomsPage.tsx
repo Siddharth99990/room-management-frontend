@@ -1,134 +1,163 @@
-import React, { useState } from "react";
-import RoomCard, { type Room } from "../components/RoomCard";
-import SmoothCarousel from "../components/Carousel";
-
-export const roomsData: Room[] = [
-  {
-    id: 1,
-    name: "Innovation Hub Delta",
-    capacity: 10,
-    equipment: ["Whiteboard", "AC", "WiFi", "Smart TV"],
-    location: "1st Floor, North Wing",
-    available: true,
-  },
-  {
-    id: 2,
-    name: "Strategy Room Echo",
-    capacity: 16,
-    equipment: ["Projector", "Video Conference", "WiFi", "Lighting"],
-    location: "4th Floor, South Wing",
-    available: false,
-  },
-  {
-    id: 3,
-    name: "Design Lab Gamma",
-    capacity: 6,
-    equipment: ["Sound System", "Smart TV", "AC"],
-    location: "2nd Floor, Creative Block",
-    available: true,
-  },
-  {
-    id: 4,
-    name: "Tech Pod Zeta",
-    capacity: 14,
-    equipment: ["WiFi", "Whiteboard", "Lighting", "AC"],
-    location: "3rd Floor, East Annex",
-    available: false,
-  },
-  {
-    id: 5,
-    name: "Executive Lounge Theta",
-    capacity: 18,
-    equipment: ["Projector", "Video Conference", "AC", "WiFi"],
-    location: "6th Floor, Central Tower",
-    available: true,
-  },
-  {
-    id: 6,
-    name: "Collab Space Sigma",
-    capacity: 9,
-    equipment: ["Smart TV", "Whiteboard", "WiFi"],
-    location: "Ground Floor, West Pavilion",
-    available: true,
-  },
-  {
-    id: 7,
-    name: "Focus Room Omega",
-    capacity: 4,
-    equipment: ["AC", "WiFi"],
-    location: "2nd Floor, Quiet Zone",
-    available: false,
-  },
-  {
-    id: 8,
-    name: "Boardroom Nova",
-    capacity: 22,
-    equipment: ["Video Conference", "Projector", "AC", "WiFi"],
-    location: "5th Floor, Executive Wing",
-    available: true,
-  },
-  {
-    id: 9,
-    name: "Creative Den Orion",
-    capacity: 7,
-    equipment: ["Smart TV", "Lighting", "Sound System"],
-    location: "3rd Floor, West Studio",
-    available: false,
-  },
-  {
-    id: 10,
-    name: "Think Tank Vega",
-    capacity: 12,
-    equipment: ["Whiteboard", "AC", "WiFi", "Projector"],
-    location: "1st Floor, East Wing",
-    available: true,
-  },
-];
+import React, { useEffect, useState } from "react";
+import RoomCard from "../components/RoomCard";
+import { roomService, type Room } from "../api/room.service";
+import { Building2, Cog } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import UpdateRoomModal from '../components/UpdateRoom';
 
 const RoomsPage: React.FC = () => {
-  const [roomIndex, setRoomIndex] = useState(0);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+  const [editRoomId, setEditRoomId] = useState<number | null>(null);
+  const { user } = useAuth();
 
-  const handlePreviousRoom = () => {
-    setRoomIndex((prev) => (prev > 0 ? prev - 1 : prev));
+  const features = [
+    {
+      icon: <Building2 className="w-6 h-6" />,
+      title: "Browse Rooms",
+      description: "Freely browse through listed rooms on the platform"
+    },
+    {
+      icon: <Cog className='w-6 h-6' />,
+      title: "Manage Rooms",
+      description: 'Maintain rooms, delete, update or change rooms as needed'
+    }
+  ];
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const response = await roomService.getAllRooms();
+        setRooms(response.rooms);
+      } catch (err: any) {
+        setError(err.message || 'failed to load rooms');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRooms();
+  }, []);
+
+  
+
+  const handleRoomUpdate = (roomid: number) => {
+    setEditRoomId(roomid);
+    setIsUpdateOpen(true);
+  };
+
+  const handleUpdateSuccess = (updatedRoom: Room) => {
+    setRooms(prevRooms =>
+      prevRooms.map(room =>
+        room.roomid === updatedRoom.roomid ? updatedRoom : room
+      )
+    );
+  };
+
+  const handleCloseUpdate = () => {
+    setIsUpdateOpen(false);
+    setEditRoomId(null);
+  };
+
+  const handleRoomDelete = (deletedRoomId: number) => {
+    setRooms(prevRooms =>
+      prevRooms.filter(room => room.roomid !== deletedRoomId)
+    );
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center">
+        <div className="text-gray-600 dark:text-gray-400 animate-spin rounded-full"></div>
+      </div>
+    );
   }
 
-  const handleNextRoom = () => {
-    setRoomIndex((prev) => (prev < roomsData.length - 1 ? prev + 1 : prev))
-  }
-
-  const handleOnJumpTo = (index: number) => {
-    setRoomIndex(index);
+  if (error) {
+    return (
+      <div className="min-h-screen flex justify-center items-center">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 transition-colors duration-300">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-200 mb-4 transition-colors duration-300">
-            Rooms
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 transition-colors duration-300">
-            Browse and book available rooms
-          </p>
-        </div>
+    <>
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-50 dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-800 dark:to-red-900 transition-all duration-500">
+        <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
+          <div className="grid lg:grid-cols-3 gap-8 lg:gap-14">
+            <div className="space-y-6 sm:space-y-8">
+              <div className="space-y-4 sm:space-y-6 mt-20">
+                {user?.role === 'admin' ? (
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 dark:text-white">
+                    Browse through
+                    <span className="block bg-gradient-to-r from-red-600 to-gray-600 bg-clip-text text-transparent">
+                      &
+                    </span>
+                    <span className="block bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">
+                      Edit Rooms
+                    </span>
+                  </h1>
+                ) : (
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 dark:text-white">
+                    Browse through
+                    <span className="block bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">
+                      Listed Rooms
+                    </span>
+                  </h1>
+                )}
+                <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
+                  Browse through rooms listed on the platform and find the perfect space for your meetings
+                </p>
 
-        <SmoothCarousel
-          title="Room Cards"
-          items={roomsData}
-          currentIndex={roomIndex}
-          onPrevious={handlePreviousRoom}
-          onNext={handleNextRoom}
-          onJumpTo={handleOnJumpTo}
-          renderCard={(item, index, currentIndex) => (
-            <RoomCard
-              room={item as Room}
-              isActive={index === currentIndex}
-            />
-          )}
-        />
+                <div className="space-y-4 sm:space-y-6">
+                  {features.map((feature, index) => (
+                    <div
+                      key={index}
+                      className="flex items-start space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-xl dark:bg-gray-800/50 backdrop-blur-sm border border-gray-300/50 dark:border-gray-700/50 transition-all duration-300 hover:shadow-lg hover:scale-[1.02]"
+                    >
+                      <div className="flex-shrink-0 w-10 sm:w-12 h-10 sm:h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl flex items-center justify-center text-white">
+                        {feature.icon}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-1 text-sm sm:text-base">
+                          {feature.title}
+                        </h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
+                          {feature.description}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="lg:col-span-2">
+              <div className="grid grid-cols-2 gap-6">
+                {rooms.map((room) => (
+                  <RoomCard 
+                    key={room.roomid} 
+                    room={room} 
+                    onDelete={handleRoomDelete}
+                    onUpdate={handleRoomUpdate}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  )
+      {isUpdateOpen && editRoomId && (
+        <UpdateRoomModal
+          isOpen={isUpdateOpen}
+          onClose={handleCloseUpdate}
+          roomid={editRoomId}
+          onUpdateSuccess={handleUpdateSuccess}
+        />
+      )}
+    </>
+  );
 };
 
 export default RoomsPage;

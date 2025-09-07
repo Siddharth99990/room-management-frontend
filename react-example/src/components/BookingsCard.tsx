@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {Calendar,Building,Users, User, Clock } from "lucide-react";
 
 export interface Booking{
@@ -21,59 +21,59 @@ export interface Booking{
 export const allBookings: Booking[] = [
         {
             id: 1,
-            starttime: new Date('2025-09-05T09:00:00'), // Future booking
+            starttime: new Date('2025-09-05T09:00:00'), 
             endtime: new Date('2025-09-05T10:30:00'),
             roomno: 1,
-            host: { hostid: 1, hostname: "Sarah Johnson" },
+            host: { hostid: 1, hostname: "Nirmala" },
             status: 'confirmed',
             attendees: [
-                { attendeeid: 2, attendeename: "Sam Porter", invitestatus: 'confirmed' },
-                { attendeeid: 3, attendeename: "John Doe", invitestatus: 'invited' }
+                { attendeeid: 2, attendeename: "siddharth", invitestatus: 'confirmed' },
+                { attendeeid: 3, attendeename: "Honey", invitestatus: 'invited' }
             ]
         },
         {
             id: 2,
-            starttime: new Date('2025-09-04T14:00:00'), // Future booking
+            starttime: new Date('2025-09-04T14:00:00'), 
             endtime: new Date('2025-09-04T15:30:00'),
             roomno: 2,
-            host: { hostid: 2, hostname: "Sam Porter" },
+            host: { hostid: 2, hostname: "siddharth" },
             status: 'confirmed',
             attendees: [
-                { attendeeid: 1, attendeename: "Sarah Johnson", invitestatus: 'confirmed' },
-                { attendeeid: 4, attendeename: "Mike Wilson", invitestatus: 'rejected' }
+                { attendeeid: 1, attendeename: "Nirmala", invitestatus: 'confirmed' },
+                { attendeeid: 4, attendeename: "Arjun Das", invitestatus: 'rejected' }
             ]
         },
         {
             id: 3,
-            starttime: new Date('2025-09-06T11:00:00'), // Future booking
+            starttime: new Date('2025-09-06T11:00:00'), 
             endtime: new Date('2025-09-06T12:00:00'),
             roomno: 3,
-            host: { hostid: 1, hostname: "Sarah Johnson" },
+            host: { hostid: 1, hostname: "Nirmala" },
             status: 'confirmed',
             attendees: [
-                { attendeeid: 2, attendeename: "Sam Porter", invitestatus: 'confirmed' }
+                { attendeeid: 2, attendeename: "siddharth", invitestatus: 'confirmed' }
             ]
         },
         {
             id: 4,
-            starttime: new Date('2025-09-01T10:00:00'), // Past booking
+            starttime: new Date('2025-09-01T10:00:00'), 
             endtime: new Date('2025-09-01T11:30:00'),
             roomno: 1,
-            host: { hostid: 1, hostname: "Sarah Johnson" },
+            host: { hostid: 1, hostname: "Nirmala" },
             status: 'confirmed',
             attendees: [
-                { attendeeid: 2, attendeename: "Sam Porter", invitestatus: 'confirmed' }
+                { attendeeid: 4, attendeename: "Arjun Das", invitestatus: 'confirmed' }
             ]
         },
         {
             id: 5,
-            starttime: new Date('2025-09-02T13:00:00'), // Past booking
+            starttime: new Date('2025-09-02T13:00:00'), 
             endtime: new Date('2025-09-02T14:00:00'),
             roomno: 2,
-            host: { hostid: 2, hostname: "Sam Porter" },
+            host: { hostid: 2, hostname: "siddharth" },
             status: 'cancelled',
             attendees: [
-                { attendeeid: 1, attendeename: "Sarah Johnson", invitestatus: 'invited' }
+                { attendeeid: 3, attendeename: "Honey", invitestatus: 'invited' }
             ]
         }
     ];
@@ -81,15 +81,12 @@ export const allBookings: Booking[] = [
 interface BookingCardProps {
     booking: Booking;
     isActive?: boolean;
-    showCancelButton?: boolean; // New prop to control cancel button visibility
-    // onCancel?: (bookingId: number) => void; // Optional cancel handler
+    showCancelButton?: boolean; 
 }
 
 const BookingCard: React.FC<BookingCardProps> = ({ 
     booking, 
     isActive = true, 
-    // showCancelButton = false,
-    // onCancel 
 }) => {
     const getStatusColor = (status: string) => {
         switch(status){

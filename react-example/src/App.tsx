@@ -56,6 +56,8 @@ const router = createBrowserRouter(
           </ProtectedRoute>
         }
       />
+
+      <Route path='/roomsdev' element={<RoomsPage/>}/>
       <Route path="*" element={<NotFoundPage />} />
     </Route>
     </>

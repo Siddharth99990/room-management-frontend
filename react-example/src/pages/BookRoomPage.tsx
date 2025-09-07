@@ -1,8 +1,7 @@
-import React,{useState} from "react";
+import React,{useEffect, useState} from "react";
 import {Clock,Users,Building2,Search,Filter,X,Check}from 'lucide-react';
 import { useAuth } from "../context/AuthContext";
-import { roomsData } from "./RoomsPage";
-import type {Room} from '../components/RoomCard';
+import { roomService, type Room } from "../api/room.service";
 
 interface BookingForm{
     roomid:number|null;
@@ -83,6 +82,23 @@ const BookRoomPage:React.FC=()=>{
     const [isSubmitting,setIsSubmitting]=useState(false);
     const [success,setSuccess]=useState(false);
     const [error,setError]=useState('');
+    const [isLoadingRooms,setIsLoadingRooms]=useState(false);
+    const [roomsData, setRoomsData] = useState<Room[]>([]);
+
+   useEffect(()=>{
+           const fetchRooms=async()=>{
+               try{
+                   const response=await roomService.getAllRooms();
+                   setRoomsData(response.rooms);
+               }catch(err:any){
+                   console.error("Error fetching rooms:",err);
+                   setRoomsData([]);
+               }finally{
+                   setIsLoadingRooms(false);
+               }
+           };
+           fetchRooms();
+       },[]);
 
     const [bookingForm,setBookingForm]=useState<BookingForm>({
         roomid: null,
@@ -118,8 +134,8 @@ const BookRoomPage:React.FC=()=>{
     };
 
     const filteredRooms = roomsData.filter(room => {
-        const matchesSearch = room.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            room.location.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = room.roomname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            room.roomlocation.toLowerCase().includes(searchTerm.toLowerCase());
         
         const matchesCapacity = !capacityFilter || 
             (capacityFilter === "small" && room.capacity <= 6) ||
@@ -131,7 +147,7 @@ const BookRoomPage:React.FC=()=>{
         
         let matchesAvailability = true;
         if (showAvailableOnly && dateFilter && startTimeFilter && endTimeFilter) {
-            matchesAvailability = isRoomAvailable(room.id, dateFilter, startTimeFilter,endTimeFilter);
+            matchesAvailability = isRoomAvailable(room.roomid, dateFilter, startTimeFilter,endTimeFilter);
         }
         
         return matchesSearch && matchesCapacity && matchesEquipment && matchesAvailability;
@@ -139,14 +155,14 @@ const BookRoomPage:React.FC=()=>{
 
     const handleRoomSelect=(room:Room)=>{
         const isAvailable=!showAvailableOnly||!dateFilter||!startTimeFilter||!endTimeFilter||
-            isRoomAvailable(room.id,dateFilter,startTimeFilter,endTimeFilter);
+            isRoomAvailable(room.roomid,dateFilter,startTimeFilter,endTimeFilter);
         
         if(!isAvailable)return;
 
         setSelectedRoom(room);
         setBookingForm(prev=>({
             ...prev,
-            roomid:room.id,
+            roomid:room.roomid,
             date:dateFilter||prev.date,
             starttime:startTimeFilter||prev.starttime,
             endtime:endTimeFilter||prev.endtime
@@ -220,8 +236,8 @@ const BookRoomPage:React.FC=()=>{
             await new Promise(resolve=>setTimeout(resolve,2000));
             console.log("Room Booked:",{
                 ...bookingForm,
-                roomName:selectedRoom?.name,
-                hostid:user?.id,
+                roomName:selectedRoom?.roomname,
+                hostid:user?.userid,
                 hostname:user?.name
             });
 
@@ -265,7 +281,7 @@ const BookRoomPage:React.FC=()=>{
     };
 
     return(
-        <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50 dark:from-gray-800 dark:to-red-900 transition-all duration-500">
+        <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50 dark:from-gray-800 dark:via-gray-800 dark:to-red-900 transition-all duration-500">
             <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
                 <div className="text-center mb-12">
                     <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 dark:text-white leading-tight">
@@ -392,10 +408,10 @@ const BookRoomPage:React.FC=()=>{
                     {filteredRooms.map((room) => {
                         // Check availability for display
                         const isAvailable = !showAvailableOnly || !dateFilter || !startTimeFilter || !endTimeFilter || 
-                            isRoomAvailable(room.id, dateFilter, startTimeFilter, endTimeFilter);
+                            isRoomAvailable(room.roomid, dateFilter, startTimeFilter, endTimeFilter);
                         
                         return (
-                            <div key={room.id} 
+                            <div key={room.roomid} 
                                  className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg border p-6 transition-all duration-300 cursor-pointer ${
                                      isAvailable
                                          ? 'border-gray-200 dark:border-gray-700 hover:shadow-xl hover:-translate-y-1 hover:border-red-300 dark:hover:border-red-600'
@@ -405,7 +421,7 @@ const BookRoomPage:React.FC=()=>{
                                 
                                 <div className="flex justify-between items-start mb-4">
                                     <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200">
-                                        {room.name}
+                                        {room.roomname}
                                     </h3>
                                     {showAvailableOnly && dateFilter && startTimeFilter && endTimeFilter && (
                                         <div className={`px-3 py-1 rounded-full text-xs font-medium ${
@@ -421,7 +437,7 @@ const BookRoomPage:React.FC=()=>{
                                 <div className="space-y-2 mb-4">
                                     <div className="flex items-center text-gray-600 dark:text-gray-400">
                                         <Building2 className="w-4 h-4 mr-2" />
-                                        <span className="text-sm">{room.location}</span>
+                                        <span className="text-sm">{room.roomlocation}</span>
                                     </div>
                                     <div className="flex items-center text-gray-600 dark:text-gray-400">
                                         <Users className="w-4 h-4 mr-2" />
@@ -478,7 +494,7 @@ const BookRoomPage:React.FC=()=>{
                         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
                             <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                                 <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-                                    Book {selectedRoom.name}
+                                    Book {selectedRoom.roomname}
                                 </h2>
                                 <button
                                     onClick={resetForm}

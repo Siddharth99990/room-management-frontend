@@ -1,8 +1,15 @@
 import React, { useState,useEffect} from "react";
-import { Lock, Mail, Shield, User, UserCheck, UserCog2 } from "lucide-react";
+import { userService,type User } from "../api/user.service";
+import { Lock, Mail, Shield, User2, UserCheck, UserCog2 } from "lucide-react";
 
+interface RegisterForm{
+    name:string;
+    email:string;
+    password:string;
+    role:'admin'|'employee'|'';
+}
 const RegisterEmployeePage = () => {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<RegisterForm>({
         name: '',
         email: '',
         password: '',
@@ -100,20 +107,30 @@ const RegisterEmployeePage = () => {
         setIsSubmitting(true);
 
         try {
-            console.log('Registering user',formData);
-            await new Promise(resolve => { setTimeout(resolve, 2000) });
+            console.log("Registering user");
+
+            const userData={
+                name:formData.name,
+                email:formData.email,
+                password:formData.password,
+                role:formData.role as 'admin'|'employee'
+            };
+
+            await userService.registeruser(userData as User);
+
             setSuccess(true);
-            setFormData({ name: '', email: '', password: '', role: '' });
+            setFormData({name:'',email:'',password:'',role:''});
 
         } catch (err: any) {
-            setError('Registration failed please try again');
+            console.error("Registration failed",err);
+            setError(err.message);
         } finally {
             setIsSubmitting(false);
         }
     };
 
     const features=[
-        {   icon:<User className="w-6 h-6"/>,
+        {   icon:<User2 className="w-6 h-6"/>,
             title:'Register User',
             description:'Register new users onto the platform'
         },
@@ -188,7 +205,7 @@ const RegisterEmployeePage = () => {
                                 )}
 
                                 <div className="relative">
-                                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    <User2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                                     <input
                                         type="text"
                                         name="name"

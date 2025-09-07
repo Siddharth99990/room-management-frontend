@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Users, Building2, Sun, Moon, Menu, X , LogOut, UserCheck, Check } from 'lucide-react';
+import { Home, Users, Building2, Sun, Moon, Menu, X , LogOut, UserCheck, Check, Settings } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import ChangePasswordModal from "../components/ChangePassword";
 
 const NavBarLayout: React.FC = () => {
     const location = useLocation();
@@ -10,6 +11,7 @@ const NavBarLayout: React.FC = () => {
     const { theme, toggleTheme } = useTheme();
     const { user, logout, isAuthenticated } = useAuth();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isChangePasswordOpen,setIsChangePasswordOpen]=useState(false);
 
     const isActive = (path: string) => {
         if (path === '/' && location.pathname === '/') return true;
@@ -25,10 +27,22 @@ const NavBarLayout: React.FC = () => {
     };
 
     const handleLogout = () => {
-        logout();
+        logout(); 
         navigate('/');
         closeMobileMenu();
     };
+
+    const handleChangePasswordClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsChangePasswordOpen(true);
+    };
+
+    useEffect(()=>{
+        if(user && user?.isTemporaryPassword){
+            setIsChangePasswordOpen(true);
+        }
+    },[user?.isTemporaryPassword]);
 
     const navLinks = isAuthenticated ? [
         { path: '/home', label: 'Home', icon: Home },
@@ -71,6 +85,14 @@ const NavBarLayout: React.FC = () => {
                             {isAuthenticated && user && (
                                 <div className="flex items-center space-x-4 border-l border-gray-200 dark:border-gray-700 pl-4">
                                     <button
+                                        type="button"
+                                        onClick={handleChangePasswordClick}
+                                        className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 transition-all duration-200"
+                                    >
+                                        <Settings className="h-4 w-4" />
+                                        <span>Change Password</span>
+                                    </button>
+                                    <button
                                         onClick={handleLogout}
                                         className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 transition-all duration-200"
                                     >
@@ -81,6 +103,7 @@ const NavBarLayout: React.FC = () => {
                             )}
                             
                             <button
+                                type="button"
                                 onClick={toggleTheme}
                                 className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-300 hover:scale-110"
                                 aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
@@ -95,6 +118,7 @@ const NavBarLayout: React.FC = () => {
 
                         <div className="md:hidden flex items-center space-x-2">
                             <button
+                                type="button"
                                 onClick={toggleTheme}
                                 className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-300 hover:scale-110"
                                 aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
@@ -108,6 +132,7 @@ const NavBarLayout: React.FC = () => {
                             
                             {isAuthenticated && (
                                 <button
+                                    type="button"
                                     onClick={toggleMobileMenu}
                                     className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300"
                                     aria-label="Toggle mobile menu"
@@ -145,10 +170,20 @@ const NavBarLayout: React.FC = () => {
 
                             {user && (
                                 <>
-                                    <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 mt-2 pt-4">
-                                        Welcome, {user.name}
-                                    </div>
                                     <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            setIsChangePasswordOpen(true);
+                                            closeMobileMenu();
+                                        }}
+                                        className="flex items-center space-x-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 w-full text-left"
+                                    >
+                                        <Settings className="h-5 w-5" />
+                                        <span>Change Password</span>
+                                    </button>
+                                    <button
+                                        type="button"
                                         onClick={handleLogout}
                                         className="flex items-center space-x-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 w-full text-left"
                                     >
@@ -161,6 +196,11 @@ const NavBarLayout: React.FC = () => {
                     </div>
                 )}
             </nav>
+
+            <ChangePasswordModal
+                isOpen={isChangePasswordOpen}
+                onClose={()=>setIsChangePasswordOpen(false)}
+            />
 
             <main className="transition-colors duration-300">
                 <Outlet />

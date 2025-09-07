@@ -194,6 +194,7 @@ const LoginPage = () => {
                     placeholder="Email Address"
                     value={formData.email}
                     onChange={handleInputChange}
+                    autoComplete="new-email"
                     className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-300"
                     required
                   />
@@ -205,6 +206,7 @@ const LoginPage = () => {
                     type="password"
                     name="password"
                     placeholder="Password"
+                    autoComplete="new-password"
                     value={formData.password}
                     onChange={handleInputChange}
                     className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-300"

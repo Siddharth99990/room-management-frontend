@@ -5,9 +5,11 @@ interface AuthContextType{
     user:User|null;
     login:(email:string,password:string)=>Promise<{success:boolean,message?:string}>;
     logout:()=>Promise<void>;
+    changePassword:(email:string,oldPassword:string,newPassword:string)=>Promise<{success:boolean,message?:string}>;
     isAuthenticated:boolean;
     isLoading:boolean;
     error:string|null;
+    hasTemporaryPassword:boolean;
     clearError:()=>void;
 }
 
@@ -17,6 +19,8 @@ export const AuthProvider:React.FC<{children:React.ReactNode}>=({children})=>{
     const [user,setUser]=useState<User|null>(null);
     const [isLoading,setIsLoading]=useState(true);
     const [error,setError]=useState<string|null>(null);
+
+    const hasTemporaryPassword=user?.isTemporaryPassword||false;
 
     useEffect(()=>{
         checkAuthStatus();
@@ -75,6 +79,30 @@ export const AuthProvider:React.FC<{children:React.ReactNode}>=({children})=>{
         }
     };
 
+    const changePassword=async (email:string,oldPassword:string,newPassword:string):Promise<{success:boolean,message?:string}>=>{
+        try{
+            setIsLoading(true);
+            setError('');
+            const response=await authService.changePassword({email,oldPassword,newPassword});
+
+            if(response.success){
+                setUser({...response.data.user,isTemporaryPassword:false});
+                return{
+                    success:true,
+                    message:response.message
+                };
+            }
+
+            return {success:false,message:response.message||"Change password failed"};
+        }catch(err:any){
+            console.error("Change password error:",err);
+            setError(err.message||"An unexpected error occurred");
+            return{success:false,message:err.message};
+        }finally{
+            setIsLoading(false);
+        }
+    }
+
     const clearError=()=>{
         setError(null);
     }
@@ -83,10 +111,12 @@ export const AuthProvider:React.FC<{children:React.ReactNode}>=({children})=>{
         user,
         login,
         logout,
+        changePassword,
         isAuthenticated:!!user,
         isLoading,
         error,
-        clearError
+        clearError,
+        hasTemporaryPassword
     };
 
     return (

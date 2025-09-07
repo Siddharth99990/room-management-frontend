@@ -10,6 +10,7 @@ export interface User{
     name:string;
     email:string;
     role:'admin'|'employee';
+    isTemporaryPassword?:boolean;
     createdAt?:string;
     updatedAt?:string;
 }
@@ -33,6 +34,12 @@ export interface CheckAuthResponse{
 export interface LogoutResponse{
     success: boolean;
     message: string;
+}
+
+export interface ChangePassword{
+    email:string,
+    oldPassword:string,
+    newPassword:string
 }
 
 export interface ApiError{
@@ -84,6 +91,16 @@ class AuthService{
             return response.data;
         }catch(err:any){
             console.error("Auth check service error:",err);
+            throw this.handleApiError(err);
+        }
+    }
+
+    async changePassword(credentials:ChangePassword):Promise<LoginResponse>{
+        try{
+            const response=await api.put<LoginResponse>('/auth/v1/changepassword',credentials);
+            return response.data;
+        }catch(err:any){
+            console.error("Change password error:",err);
             throw this.handleApiError(err);
         }
     }
