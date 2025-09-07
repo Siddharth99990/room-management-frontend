@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import EmployeeCard from "../components/EmployeeCard";
 import { userService, type User } from '../api/user.service';
-import { Cog, User2 } from 'lucide-react';
+import { Cog, Plus, User2 } from 'lucide-react';
 import UpdateUserModal from '../components/UpdateUser';
+import { Link } from 'react-router-dom';
 
 const EmployeesPage: React.FC = () => {
   const [employees, setEmployees] = useState<User[]>([]);
@@ -85,6 +86,13 @@ const EmployeesPage: React.FC = () => {
         <div className='grid lg:grid-cols-3 gap-8 lg:gap-14'>
           <div className='space-y-6 sm:space-y-8'>
             <div className='space-y-4 sm:space-y-6 mt-20'>
+              <Link 
+                  to='/registeruser'
+                  className='inline-flex items-center justify-center px-5 py-3 rounded-xl bg-gradient-to-r from-red-600 to-pink-600 text-white font-semibold shadow-md hover:from-red-700 hover:to-pink-700 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
+                  >
+                  <Plus className='w-5 h-5 mr-2'/>
+                  Register a new user
+              </Link> 
               <h1 className='text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 dark:text-white '>
                 Browse through
                 <span className='block bg-gradient-to-r from-red-600 to-gray-600 bg-clip-text text-transparent'>

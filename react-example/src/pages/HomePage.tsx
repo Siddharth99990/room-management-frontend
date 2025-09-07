@@ -1,6 +1,6 @@
 import React,{ useEffect, useState } from 'react';
 import {useAuth}from '../context/AuthContext';
-import { Users,Building2,Calendar,Plus,MapPin, Cog, CalendarX, Search } from 'lucide-react';
+import { Users,Building2,Calendar,Plus,MapPin, CalendarX, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SmoothCarousel from '../components/Carousel';
 import BookingCard,{allBookings,type Booking} from '../components/BookingsCard';
@@ -187,7 +187,7 @@ const HomePage=()=>{
                                     {isLoadingCount?
                                     (<span className='animate-pulse'>Loading...</span>)
                                     :`Currently active employees: ${userLength}`} 
-                                    </span>
+                                </span>
                                 <Link to='/registeruser' className='bg-red-100 dark:bg-red-500 dark:text-white p-2 rounded-lg hover:bg-red-300 dark:hover:bg-red-800 transition-colors'>
                                     <Plus className='w-4 h-4'/>
                                 </Link>
@@ -206,9 +206,13 @@ const HomePage=()=>{
                                 </div>
                             </div>
                             <div className='flex items-center justify-between'>
-                                <span className='text-2xl font-bold text-gray-900 dark:text-white'>Currently active rooms: {roomsData.length}</span>
-                                <Link to='/rooms' className='bg-red-100 dark:bg-red-500 dark:text-white p-2 rounded-lg hover:bg-red-300 dark:hover:bg-red-800 transition-colors'>
-                                    <Cog className='w-4 h-4'/>
+                                <span className='text-2xl font-bold text-gray-900 dark:text-white'>
+                                    {isLoadingRooms?
+                                    (<span className='animate-pulse'>Loading...</span>)
+                                    :`Currently active rooms: ${roomsData.length}`} 
+                                </span>
+                                <Link to='/registerroom' className='bg-red-100 dark:bg-red-500 dark:text-white p-2 rounded-lg hover:bg-red-300 dark:hover:bg-red-800 transition-colors'>
+                                    <Plus className='w-4 h-4'/>
                                 </Link>
                             </div>
                         </div> 
@@ -273,10 +277,10 @@ const HomePage=()=>{
                             <Link 
                             to='/bookroom'
                             className='inline-flex items-center justify-center px-5 py-3 rounded-xl bg-gradient-to-r from-red-600 to-pink-600 text-white font-semibold shadow-md hover:from-red-700 hover:to-pink-700 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] mb-16 mt-4'
-                        >
+                            >
                             <Plus className='w-5 h-5 mr-2'/>
                             Book a Room now
-                        </Link>  
+                            </Link>  
                             <h1 className="text-xl sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 dark:text-white leading-tight">
                                 View Your
                                 <span className="block bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">
@@ -310,7 +314,7 @@ const HomePage=()=>{
 
                 <div className='grid lg:grid-cols-2 lg:gap-16 mt-16'>
                     <div className='order-2 lg:order-2'>
-                        <div className='flex items-center justify-between mb-6'>
+                        <div className='flex items-center justify-between mb-6'> 
                             <h2 className='text-2xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white leading-tight'>
                                 Featured
                                 <span className=" block bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">
@@ -380,7 +384,7 @@ const HomePage=()=>{
                         >
                             <Search className='w-5 h-5 mr-2'/>
                             View All Rooms
-                        </Link>    
+                        </Link>
                     </div>
                 </div>
             </div>

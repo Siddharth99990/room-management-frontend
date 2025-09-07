@@ -10,6 +10,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import HomePage from "./pages/HomePage";
 import RegisterEmployeePage from "./pages/RegisterEmployeePage";
 import BookRoomPage from "./pages/BookRoomPage";
+import RegisterRoomPage from "./pages/RegisterRoomPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -56,8 +57,14 @@ const router = createBrowserRouter(
           </ProtectedRoute>
         }
       />
-
-      <Route path='/roomsdev' element={<RoomsPage/>}/>
+      <Route 
+        path='/registerroom'
+        element={
+          <ProtectedRoute requiredRole="admin">
+            <RegisterRoomPage/>
+          </ProtectedRoute>
+        }
+      />
       <Route path="*" element={<NotFoundPage />} />
     </Route>
     </>

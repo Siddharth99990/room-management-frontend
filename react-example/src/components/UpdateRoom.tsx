@@ -16,14 +16,12 @@ interface UpdateRoomModalProps {
     onUpdateSuccess?: (updatedRoom: Room) => void;
 }
 
-// Available equipment options - you can expand this list
 const availableEquipment = [
     "WiFi",
     "Projector", 
     "Smart TV",
     "Sound System",
     "AC",
-    "Video Conference",
     "Lighting",
     "Whiteboard",
     "Chair",
@@ -31,13 +29,6 @@ const availableEquipment = [
     "Long Table",
     "Microphone",
     "Speaker",
-    "Phone System",
-    "Computer",
-    "Printer",
-    "Scanner",
-    "Coffee Machine",
-    "Water Dispenser",
-    "Flip Chart"
 ];
 
 const UpdateRoomModal: React.FC<UpdateRoomModalProps> = ({ 
@@ -148,7 +139,6 @@ const UpdateRoomModal: React.FC<UpdateRoomModalProps> = ({
             return false;
         }
 
-        // Check if anything actually changed
         if (originalRoom && 
             updateForm.roomname === originalRoom.roomname &&
             updateForm.roomlocation === originalRoom.roomlocation &&

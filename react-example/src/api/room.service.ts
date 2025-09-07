@@ -30,6 +30,14 @@ export interface DeleteRoomResponse{
     updatedAt?:string;
 }
 
+export interface RegisterRoomResponse{
+    success:boolean;
+    message:string;
+    data:{
+        room:Room;
+    }
+}
+
 export interface UpdateRoomResponse{
     success:boolean;
     message:string;
@@ -53,6 +61,17 @@ export interface ApiError {
 
 
 class RoomService {
+
+    async registerRoom(Information:Room):Promise<RegisterRoomResponse>{
+        try{
+            const response=await api.post<RegisterRoomResponse>('/rooms/v1/room',Information);
+            return response.data;
+        }catch(err:any){
+            console.error("Post rooms service error",err);
+            throw this.handleApiError(err);
+        }
+    }
+
     async getAllRooms(): Promise<RoomsResponse> {
         try {
             const response = await api.get<RoomsResponse>('/rooms/v1/rooms');

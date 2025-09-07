@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import RoomCard from "../components/RoomCard";
 import { roomService, type Room } from "../api/room.service";
-import { Building2, Cog } from "lucide-react";
+import { Building2, Cog, Plus } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import UpdateRoomModal from '../components/UpdateRoom';
 
@@ -90,6 +91,14 @@ const RoomsPage: React.FC = () => {
             <div className="space-y-6 sm:space-y-8">
               <div className="space-y-4 sm:space-y-6 mt-20">
                 {user?.role === 'admin' ? (
+                  <>
+                  <Link 
+                    to='/registerroom'
+                    className='inline-flex items-center justify-center px-5 py-3 rounded-xl bg-gradient-to-r from-red-600 to-pink-600 text-white font-semibold shadow-md hover:from-red-700 hover:to-pink-700 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] '
+                  >
+                    <Plus className='w-5 h-5 mr-2'/>
+                    Register a new room
+                  </Link>  
                   <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 dark:text-white">
                     Browse through
                     <span className="block bg-gradient-to-r from-red-600 to-gray-600 bg-clip-text text-transparent">
@@ -99,6 +108,7 @@ const RoomsPage: React.FC = () => {
                       Edit Rooms
                     </span>
                   </h1>
+                  </>
                 ) : (
                   <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 dark:text-white">
                     Browse through

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Users, Building2, Sun, Moon, Menu, X , LogOut, UserCheck, Check, Settings } from 'lucide-react';
+import { Home, Users, Building2, Sun, Moon, Menu, X , LogOut, Check, Settings } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import ChangePasswordModal from "../components/ChangePassword";
@@ -48,7 +48,7 @@ const NavBarLayout: React.FC = () => {
         { path: '/home', label: 'Home', icon: Home },
         { path: '/rooms', label: 'Rooms', icon: Building2 },
         { path:'/bookroom',label:'Book',icon:Check},
-        ...(user?.role==='admin'?[{path:'/registeruser',label:'Register',icon:UserCheck},
+        ...(user?.role==='admin'?[
         { path: '/users', label: 'Users', icon: Users },]:[])
     ] : [];
 
