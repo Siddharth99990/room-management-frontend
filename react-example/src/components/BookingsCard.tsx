@@ -78,11 +78,11 @@ const BookingCard: React.FC<BookingCardProps> = ({
         onUpdate?.(booking.bookingid);
     };
 
-    const canModify = user?.role === 'admin' || user?.userid === booking.createdBy.userid;
+    const canModify =user?.userid === booking.createdBy.userid;
     const isPastBooking = new Date(booking.endtime) < new Date();
 
     return (
-        <div className={`flex flex-col bg-white dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-800 dark:to-red-800 backdrop-blur-xl rounded-xl shadow-lg border border-red-500 dark:border-gray-700 p-6 transition-all duration-300 ${isActive ? 'hover:shadow-xl hover:-translate-y-1' : ''
+        <div className={`flex flex-col bg-white dark:bg-gray-800 backdrop-blur-xl rounded-xl shadow-lg border border-red-500 dark:border-red-900 p-6 transition-all duration-300 ${isActive ? 'hover:shadow-xl hover:-translate-y-1' : ''
             }`}>
             <div className="flex-grow">
                 <div className="flex justify-between items-start mb-4">

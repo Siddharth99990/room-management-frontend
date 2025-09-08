@@ -50,7 +50,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
         if(!hasTemporaryPassword && success){
             const timer=setTimeout(()=>{
                 handleClose()
-            },2500);
+            },1000);
             return ()=> clearTimeout(timer);
         }
     },[success,!hasTemporaryPassword])
@@ -118,10 +118,6 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
 
     const handleClose = () => {
 
-        if(hasTemporaryPassword){
-            return;
-        }
-
         if (!isSubmitting) {
             setError('');
             setSuccess(false);
@@ -141,16 +137,13 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-gradient-to-br from-red-50 to-pink-50 dark:bg-gradient dark:from-gray-800 dark:to-red-800 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 w-full max-w-md mx-auto">
                 <div className="p-6 sm:p-8 border-b border-gray-200/50 dark:border-gray-700/50">
-                {!hasTemporaryPassword?(
                     <button 
                         onClick={handleClose}
                         disabled={isSubmitting}
                         className="absolute right-4 top-4 p-2 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <X className="w-5 h-5"/>
-                    </button>
-                ):[]}
-                    
+                    </button> 
                 {hasTemporaryPassword?(
                     <div className="text-center">
                         <div className="w-12 sm:w-16 h-12 sm:h-16 bg-gradient-to-br from-red-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -160,7 +153,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
                             Change Temporary Password
                         </h2>
                         <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                            Update your password to access your dashboard
+                            Update your password to access all features
                         </p>
                     </div>
                 ):(

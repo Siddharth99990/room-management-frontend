@@ -220,7 +220,7 @@ const HomePage = () => {
 
                 {user?.role==='admin' &&(
                     <div className='grid md:grid-cols-2 gap-6 mb-8'>
-                        <div className='bg-white dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-800 dark:to-red-800 backdrop-blur-xl rounded-2xl shadow-lg border border-red-500 dark:border-gray-700/50 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300'>
+                        <div className='bg-white dark:bg-gray-800 backdrop-blur-xl rounded-2xl shadow-lg border border-red-500 dark:border-red-900 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300'>
                             <div className='flex items-center justify-between mb-4'>
                                 <div className='flex items-center space-x-3'>
                                     <div className='w-12 h-12 bg-gradient-to-br from-red-600 to-pink-600 rounded-xl flex items-center justify-center'>
@@ -243,7 +243,7 @@ const HomePage = () => {
                                 </Link>
                             </div>
                         </div>
-                       <div className='bg-white dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-800 dark:to-red-800 backdrop-blur-xl rounded-2xl shadow-lg border border-red-500 dark:border-gray-700/50 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300'>
+                       <div className='bg-white dark:bg-gray-800 backdrop-blur-xl rounded-2xl shadow-lg border border-red-500 dark:border-red-900 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300'>
                             <div className='flex items-center justify-between mb-4'>
                                 <div className='flex items-center space-x-3'>
                                     <div className='w-12 h-12 bg-gradient-to-br from-red-600 to-pink-600 rounded-xl flex items-center justify-center'>
@@ -332,10 +332,17 @@ const HomePage = () => {
                         <div className='space-y-4 sm:space-y-6 '>
                             <Link 
                             to='/bookroom'
-                            className='inline-flex items-center justify-center px-5 py-3 rounded-xl bg-gradient-to-r from-red-600 to-pink-600 text-white font-semibold shadow-md hover:from-red-700 hover:to-pink-700 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] mb-16 mt-4'
+                            className='inline-flex items-center justify-center px-5 py-3 rounded-xl bg-gradient-to-r from-red-600 to-pink-600 text-white font-semibold shadow-md hover:from-red-700 hover:to-pink-700 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] mb-2 mt-4'
                             >
                             <Plus className='w-5 h-5 mr-2'/>
                             Book a Room now
+                            </Link>
+                            <br/>
+                            <Link 
+                                to='/bookings'
+                                className='bg-gradient-to-r from-red-600 to-pink-600 text-white px-5 py-3  rounded-xl inline-flex intems-center justify-center font-semibold shadow-md hover:from-red-900 hover:to-pink-700 transition-all duration-300 hover:shadow-lg hover:scale-[1.02]'>
+                                    <Search className='w-6 h-6 mr-2'/>
+                                    View all bookings        
                             </Link>  
                             <h1 className="text-xl sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 dark:text-white leading-tight">
                                 View Your

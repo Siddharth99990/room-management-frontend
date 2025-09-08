@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { roomService, type Room } from "../api/room.service";
 import { bookingService, type CreateBookingRequest } from "../api/booking.service";
 import { userService } from "../api/user.service";
+import { Link } from "react-router-dom";
 
 interface BookingForm {
     roomid: number | null;
@@ -427,14 +428,24 @@ const BookRoomPage: React.FC = () => {
                         <select
                             value={equipmentFilter}
                             onChange={(e) => setEquipmentFilter(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        >
                             <option value="">Any Equipment</option>
                             <option value="projector">Projector</option>
                             <option value="video conference">Video Conference</option>
                             <option value="wifi">WiFi</option>
                             <option value="whiteboard">Whiteboard</option>
                             <option value="smart tv">Smart TV</option>
+                            <option value="sound system">Sound System</option>
+                            <option value="ac">AC</option>
+                            <option value="lighting">Lighting</option>
+                            <option value="chair">Chair</option>
+                            <option value="desk">Desk</option>
+                            <option value="long table">Long Table</option>
+                            <option value="microphone">Microphone</option>
+                            <option value="speaker">Speaker</option>
                         </select>
+
 
                         <div className="flex items-center space-x-2 px-4 py-2">
                             <input
@@ -501,7 +512,7 @@ const BookRoomPage: React.FC = () => {
                         Showing {filteredRooms.length} of {roomsData.length} rooms
                         {showAvailableOnly && dateFilter && startTimeFilter && endTimeFilter && (
                             <span className="ml-2 text-red-600 dark:text-red-400">
-                                • Available on {new Date(dateFilter).toLocaleDateString()} from {startTimeFilter} to {endTimeFilter}
+                                Available on {new Date(dateFilter).toLocaleDateString()} from {startTimeFilter} to {endTimeFilter}
                             </span>
                         )}
                     </div>
@@ -522,10 +533,10 @@ const BookRoomPage: React.FC = () => {
                                 <div key={room.roomid}
                                     className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-red-500 p-6 transition-all duration-300 ${
                                         canSelect 
-                                            ? 'border-gray-200 dark:border-gray-700 cursor-pointer hover:shadow-xl hover:-translate-y-1' 
+                                            ? 'border-gray-200 dark:border-gray-700 hover:shadow-xl hover:-translate-y-1' 
                                             : 'border-red-200 dark:border-red-700 opacity-60 cursor-not-allowed'
                                     }`}
-                                    onClick={() => canSelect && handleRoomSelect(room)}>
+                                    >
 
                                     <div className="flex justify-between items-start mb-4">
                                         <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200">
@@ -581,7 +592,8 @@ const BookRoomPage: React.FC = () => {
                                             canSelect
                                                 ? 'bg-red-600 text-white hover:bg-red-700 hover:scale-105'
                                                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                        }`}>
+                                        }`}
+                                        onClick={() => canSelect && handleRoomSelect(room)}>
                                         {canSelect ? 'Select Room' : 'Unavailable'}
                                     </button>
                                 </div>
@@ -590,7 +602,24 @@ const BookRoomPage: React.FC = () => {
                     </div>
                 )}
 
-                {!isLoadingRooms && filteredRooms.length === 0 && (
+                {!isLoadingRooms && roomsData.length===0 &&(
+                    <div className="text-center py-12">
+                        <X className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                        <p className="text-lg text-gray-600 dark:text-gray-400 mb-2">No rooms present in the database</p>
+                        {
+                            user?.role==='admin'?(
+                                <Link to='/registerroom'
+                                 className="inline-flex items-center justify-center px-3 py-2 rounded-xl bg-gradient-to-r from-red-600 to-pink-600 text-white font-semibold shadow-md hover:from-red-700 hover:to-pink-700 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]">
+                                    Register Room
+                                </Link>
+                            ):(
+                                <p className="text-gray-500 dark:text-gray-500">Please contact an admin to add rooms</p>
+                            )
+                        }
+                    </div>
+                )}
+                
+                {!isLoadingRooms&&  filteredRooms.length===0 &&(
                     <div className="text-center py-12">
                         <Filter className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                         <p className="text-lg text-gray-600 dark:text-gray-400 mb-2">No rooms match your criteria</p>
@@ -599,7 +628,7 @@ const BookRoomPage: React.FC = () => {
                 )}
 
                 {isBookingFormOpen && selectedRoom && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur flex items-center justify-center z-50 p-4">
                         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
                             <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                                 <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">

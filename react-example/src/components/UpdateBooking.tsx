@@ -3,6 +3,7 @@ import { X, Check, Edit, Calendar, Clock, Building2,  Users, FileText } from 'lu
 import { bookingService, type UpdateBookingRequest } from "../api/booking.service";
 import { type Booking } from '../api/booking.service';
 import { userService } from "../api/user.service";
+import { roomService } from "../api/room.service";
 
 interface UpdateBookingForm {
     title: string;
@@ -235,13 +236,15 @@ const UpdateBookingModal: React.FC<UpdateBookingModalProps> = ({
 
                 const updatedBooking: Booking = {
                     ...originalBooking!,
+                    bookingid:originalBooking!.bookingid,
+                    createdBy:originalBooking!.createdBy,
+                    roomid:originalBooking!.roomid,
                     title: result.data.title,
                     description: result.data.description,
                     starttime: new Date(result.data.starttime),
                     endtime: new Date(result.data.endtime),
                     status: result.data.status,
                     attendees: result.data.attendees,
-                    roomid: originalBooking!.roomid 
                 };
 
                 if (onUpdateSuccess) {
@@ -493,7 +496,7 @@ const UpdateBookingModal: React.FC<UpdateBookingModalProps> = ({
                                         </button>
                                     </div>
                                 )}
-                            </form>
+                        </form>
                         </>
                     )}
                 </div>

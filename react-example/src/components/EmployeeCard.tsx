@@ -52,7 +52,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onDelete,onUpdate
   }
 
   return (
-    <div className="bg-white dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-800 dark:to-red-800 rounded-xl shadow-lg p-6 border border-red-500 dark:border-gray-700 transition-all duration-300 hover:shadow-xl flex flex-col justify-between h-60 mt-8 hover:scale-[1.02] hover:shadow-lg">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-red-500 dark:border-red-900 transition-all duration-300 hover:shadow-xl flex flex-col justify-between h-60 mt-8 hover:scale-[1.02] hover:shadow-lg">
       <div>
         <div className="mb-2">
           <div className="flex items-center gap-2 mb-1">

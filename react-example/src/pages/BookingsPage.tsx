@@ -13,6 +13,7 @@ const BookingsPage: React.FC = () => {
   const [error, setError] = useState('');
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [editBookingId, setEditBookingId] = useState<number | null>(null);
+  const [success,setSuccess]=useState(false);
   const { user } = useAuth();
 
   const features = [
@@ -21,11 +22,11 @@ const BookingsPage: React.FC = () => {
       title: "Browse Bookings",
       description: "View all bookings made on the platform"
     },
-    {
+    ...(user?.role === 'admin' ? [{
       icon: <Cog className='w-6 h-6' />,
       title: "Manage Bookings",
       description: 'Cancel, update or modify bookings as needed'
-    }
+    }] : [])
   ];
 
   useEffect(() => {
@@ -53,13 +54,37 @@ const BookingsPage: React.FC = () => {
     setIsUpdateOpen(true);
   };
 
-  const handleUpdateSuccess = (updatedBooking: Booking) => {
+  const handleUpdateSuccess = async (updatedBooking: Booking) => {
+  try {
+    const response = await bookingService.getAllBookings();
+    const bookingsWithDates = response.bookings.map(booking => ({
+      ...booking,
+      starttime: new Date(booking.starttime),
+      endtime: new Date(booking.endtime)
+    }));
+
+    setSuccess(true);
+    setBookings(bookingsWithDates);
+  } catch (err: any) {
+    console.error("Failed to refresh bookings", err);
     setBookings(prevBookings =>
       prevBookings.map(booking =>
-        booking.bookingid === updatedBooking.bookingid ? updatedBooking : booking
+        booking.bookingid === updatedBooking.bookingid 
+          ? { ...booking, ...updatedBooking }
+          : booking
       )
     );
-  };
+  }
+};
+
+  useEffect(()=>{
+    if(success){
+      setTimeout(()=>{
+        setSuccess(false);
+        handleCloseUpdate();
+      },1000);
+    }
+  })
 
   const handleCloseUpdate = () => {
     setIsUpdateOpen(false);
@@ -89,12 +114,11 @@ const BookingsPage: React.FC = () => {
       <div className="min-h-screen flex justify-center items-center">
         <div className="text-center">
           <p className="text-red-500 text-lg mb-4">{error}</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            Try Again
-          </button>
+          <Link 
+          to='/bookroom'
+          className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-pink-600 text-white font-semibold shadow-md hover:from-red-700 hover:to-pink-700 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]">
+            Be the first to book a room
+          </Link>
         </div>
       </div>
     );
@@ -144,7 +168,12 @@ const BookingsPage: React.FC = () => {
                   </>
                 )}
                 <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
-                  View and manage all room bookings made on the platform
+                  {user?.role==='admin'?(
+                    "View all bookings on the platform"
+                  ):
+                  (
+                    "View and manage your own bookings"
+                  )}
                 </p>
 
                 <div className="space-y-4 sm:space-y-6">

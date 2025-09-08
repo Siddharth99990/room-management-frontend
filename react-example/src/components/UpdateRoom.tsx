@@ -5,7 +5,7 @@ import { roomService, type Room } from "../api/room.service";
 interface UpdateRoomForm {
     roomname: string;
     roomlocation: string;
-    capacity: number;
+    capacity: string; // Changed from number to string
     equipment: string[];
 }
 
@@ -50,7 +50,7 @@ const UpdateRoomModal: React.FC<UpdateRoomModalProps> = ({
     const [updateForm, setUpdateForm] = useState<UpdateRoomForm>({
         roomname: '',
         roomlocation: '',
-        capacity: 0,
+        capacity: '', // Initialize as empty string
         equipment: [],
     });
 
@@ -68,7 +68,7 @@ const UpdateRoomModal: React.FC<UpdateRoomModalProps> = ({
                     setUpdateForm({
                         roomname: room.roomname,
                         roomlocation: room.roomlocation,
-                        capacity: room.capacity,
+                        capacity: room.capacity.toString(), // Convert to string
                         equipment: room.equipment,
                     });
                 } else {
@@ -86,10 +86,22 @@ const UpdateRoomModal: React.FC<UpdateRoomModalProps> = ({
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setUpdateForm(prev => ({
-            ...prev,
-            [name]: name === 'capacity' ? parseInt(value) || 0 : value
-        }));
+        
+        if (name === 'capacity') {
+            // Allow only numbers and empty string
+            if (value === '' || /^\d+$/.test(value)) {
+                setUpdateForm(prev => ({
+                    ...prev,
+                    [name]: value
+                }));
+            }
+        } else {
+            setUpdateForm(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
+        
         if (error) setError('');
         if (success) setSuccess(false);
     };
@@ -128,7 +140,8 @@ const UpdateRoomModal: React.FC<UpdateRoomModalProps> = ({
             return false;
         }
 
-        if (updateForm.capacity <= 0) {
+        const capacityNumber = parseInt(updateForm.capacity);
+        if (!updateForm.capacity.trim() || isNaN(capacityNumber) || capacityNumber <= 0) {
             setError('Please enter a valid Room capacity (greater than 0)');
             return false;
         }
@@ -141,7 +154,7 @@ const UpdateRoomModal: React.FC<UpdateRoomModalProps> = ({
         if (originalRoom && 
             updateForm.roomname === originalRoom.roomname &&
             updateForm.roomlocation === originalRoom.roomlocation &&
-            updateForm.capacity === originalRoom.capacity &&
+            capacityNumber === originalRoom.capacity &&
             JSON.stringify(updateForm.equipment.sort()) === JSON.stringify(originalRoom.equipment.sort())
         ) {
             setError('No changes detected. Please modify at least one field.');
@@ -168,8 +181,15 @@ const UpdateRoomModal: React.FC<UpdateRoomModalProps> = ({
         setShowConfirm(false);
 
         try {
-            console.log('Updating room with ID:', roomid, 'Data:', updateForm);
-            const result = await roomService.updateRoom(roomid, updateForm);
+            const updateData = {
+                roomname: updateForm.roomname,
+                roomlocation: updateForm.roomlocation,
+                capacity: parseInt(updateForm.capacity), // Convert to number for API
+                equipment: updateForm.equipment
+            };
+
+            console.log('Updating room with ID:', roomid, 'Data:', updateData);
+            const result = await roomService.updateRoom(roomid, updateData);
 
             if (result.success) {
                 console.log('Room updated successfully');
@@ -177,7 +197,7 @@ const UpdateRoomModal: React.FC<UpdateRoomModalProps> = ({
                 
                 const updatedRoom: Room = {
                     ...originalRoom!,
-                    ...updateForm,
+                    ...updateData,
                     roomid: roomid
                 };
 
@@ -292,13 +312,12 @@ const UpdateRoomModal: React.FC<UpdateRoomModalProps> = ({
                                 <div className="relative">
                                     <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                                     <input 
-                                        type="number"
+                                        type="text"
                                         name="capacity"
                                         placeholder="Room capacity"
                                         value={updateForm.capacity}
                                         onChange={handleInputChange}
                                         disabled={isSubmitting}
-                                        min="1"
                                         className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                                         required
                                     />

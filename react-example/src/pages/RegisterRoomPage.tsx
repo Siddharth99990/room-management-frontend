@@ -5,7 +5,7 @@ import { roomService, type Room } from "../api/room.service";
 interface RegisterForm{
     roomname:string;
     roomlocation:string;
-    capacity:number;
+    capacity:string; // Changed from number to string
     equipment:string[];
 }
 
@@ -28,7 +28,7 @@ const RegisterRoomPage = () => {
     const [formData, setFormData] = useState<RegisterForm>({
         roomname: '',
         roomlocation:'',
-        capacity:0,
+        capacity:'', // Initialize as empty string instead of 0
         equipment:[]
     });
     const [error, setError] = useState('');
@@ -62,11 +62,23 @@ const RegisterRoomPage = () => {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const {name,value}=e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]:name==='capacity'?Number(value):value
-        }));
-        if(error)setError('');
+        
+        if (name === 'capacity') {
+            // Allow only numbers and empty string
+            if (value === '' || /^\d+$/.test(value)) {
+                setFormData(prev => ({
+                    ...prev,
+                    [name]: value
+                }));
+            }
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
+        
+        if(error) setError('');
     };
 
     useEffect(()=>{
@@ -76,7 +88,10 @@ const RegisterRoomPage = () => {
                 setSuccess(false);
             },3000);
         }
-    })
+        return () => {
+            if(timer) clearTimeout(timer);
+        };
+    }, [success]); // Added dependency array
 
     const validateForm = (): boolean => {
         if (!formData.roomname.trim()) {
@@ -89,8 +104,9 @@ const RegisterRoomPage = () => {
             return false;
         }
 
-        if (formData.capacity<=0) {
-            setError("Capacity cannot be 0 or less than 0");
+        const capacityNumber = parseInt(formData.capacity);
+        if (!formData.capacity.trim() || isNaN(capacityNumber) || capacityNumber <= 0) {
+            setError("Please enter a valid Room capacity (greater than 0)");
             return false;
         }
 
@@ -115,17 +131,22 @@ const RegisterRoomPage = () => {
         try {
             console.log("Registering room");
 
-            const roomData={
-                roomname:formData.roomname,
-                roomlocation:formData.roomlocation,
-                capacity:formData.capacity,
-                equipment:formData.equipment,
+            const roomData = {
+                roomname: formData.roomname,
+                roomlocation: formData.roomlocation,
+                capacity: parseInt(formData.capacity), // Convert to number for API
+                equipment: formData.equipment,
             };
 
             await roomService.registerRoom(roomData as Room);
 
             setSuccess(true);
-            setFormData({roomname: '',roomlocation:'',capacity:0,equipment:[]});
+            setFormData({
+                roomname: '',
+                roomlocation:'',
+                capacity:'', // Reset to empty string
+                equipment:[]
+            });
 
         } catch (err: any) {
             console.error("Registration failed",err);
@@ -218,8 +239,9 @@ const RegisterRoomPage = () => {
                                         placeholder="Room Name"
                                         value={formData.roomname}
                                         onChange={handleInputChange}
-                                        className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-300"
-                                        
+                                        disabled={isSubmitting}
+                                        className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        required
                                     />
                                 </div>
 
@@ -231,21 +253,24 @@ const RegisterRoomPage = () => {
                                         placeholder="Room Location"
                                         value={formData.roomlocation}
                                         onChange={handleInputChange}
-                                        className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-300"
-                                        
+                                        disabled={isSubmitting}
+                                        className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        required
                                     />
                                 </div>
 
+                                {/* Fixed capacity input */}
                                 <div className="relative">
                                     <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                                     <input
-                                        type="number"
+                                        type="text" // Changed from "number" to "text"
                                         name="capacity"
                                         placeholder="Room Capacity"
                                         value={formData.capacity}
                                         onChange={handleInputChange}
-                                        className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-300"
-                                        
+                                        disabled={isSubmitting}
+                                        className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        required
                                     />
                                 </div>
 
@@ -260,7 +285,8 @@ const RegisterRoomPage = () => {
                                     setShowEquipmentDropdown(true);
                                     }}
                                     onFocus={() => setShowEquipmentDropdown(true)}
-                                    className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-300"
+                                    disabled={isSubmitting}
+                                    className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                                 />
 
                                 {showEquipmentDropdown && equipmentSearch && (
@@ -302,7 +328,8 @@ const RegisterRoomPage = () => {
                                         <button
                                             type="button"
                                             onClick={() => removeEquipment(equipment)}
-                                            className="ml-2 text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors duration-300"
+                                            disabled={isSubmitting}
+                                            className="ml-2 text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors duration-300 disabled:opacity-50"
                                         >
                                             ✕
                                         </button>

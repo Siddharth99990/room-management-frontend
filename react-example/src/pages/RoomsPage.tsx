@@ -20,11 +20,11 @@ const RoomsPage: React.FC = () => {
       title: "Browse Rooms",
       description: "Freely browse through listed rooms on the platform"
     },
-    {
+    ...(user?.role === 'admin' ? [{
       icon: <Cog className='w-6 h-6' />,
-      title: "Manage Rooms",
-      description: 'Maintain rooms, delete, update or change rooms as needed'
-    }
+      title: "Manage Roooms",
+      description: 'Maintain rooms,delete,update or change rooms as needed'
+    }] : [])
   ];
 
   useEffect(() => {
@@ -73,13 +73,24 @@ const RoomsPage: React.FC = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex justify-center items-center">
+ if (error) {
+  return (
+    <div className="min-h-screen flex justify-center items-center">
+      <div className="flex flex-col items-center space-y-4">
         <p className="text-red-500">{error}</p>
+        {user?.role === 'admin' && (
+          <Link
+            to="/registerroom"
+            className="px-5 py-3 rounded-xl bg-gradient-to-r from-red-600 to-pink-600 text-white font-semibold shadow-md hover:from-red-700 hover:to-pink-700 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+          >
+            Create a room now
+          </Link>
+        )}
       </div>
-    );
-  }
+    </div>
+  );
+}
+
 
   return (
     <>
