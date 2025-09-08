@@ -108,7 +108,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onDelete,onUpdate
         <div className="flex gap-2 pt-4 mt-4 border-t border-gray-100 dark:border-gray-700">
           <button 
             onClick={handleUpdateClick}
-            className="flex-1 bg-gradient-to-br from-red-600 to-pink-600 dark:bg-red-700 text-white py-2 px-4 rounded-lg hover:bg-red-700 dark:hover:bg-red-600 transition-all duration-300">
+            className="flex-1 bg-gradient-to-br from-red-600 to-pink-600 dark:from-red-700 dark:to-pink-700 text-white py-2 px-4 rounded-lg transition-all duration-300 hover:brightness-110 dark:hover:brightness-75">
             Edit Profile
           </button>
           {!isSelf &&(

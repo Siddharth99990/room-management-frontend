@@ -79,7 +79,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room,onDelete,onUpdate }) => {
     }
 
     return (
-        <div className='bg-white dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-800 dark:to-red-800 backdrop-blur-xl rounded-xl shadow-lg border border-red-500 dark:border-gray-700 p-6 w-80 transition-all duration-300 hover:scale-[1.02] flex flex-col h-full'>
+        <div className='bg-white dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-800 dark:to-red-800 backdrop-blur-xl rounded-xl shadow-lg border border-red-500 dark:border-gray-700 p-6 transition-all duration-300 hover:scale-[1.02] flex flex-col h-full'>
             <div className="flex justify-between items-start mb-4">
                 <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
@@ -150,7 +150,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room,onDelete,onUpdate }) => {
                         <div className="flex gap-2 pt-4 border-t border-gray-100 dark:border-gray-700">
                             <button 
                                 onClick={handleUpdateClick}
-                                className="flex-1 bg-gradient-to-br from-red-600 to-pink-600 dark:bg-red-700 text-white py-2 px-4 rounded-lg hover:bg-red-700 dark:hover:bg-red-600 transition-all duration-300">
+                                className="flex-1 bg-gradient-to-br from-red-600 to-pink-600 dark:from-red-700 dark:to-pink-700 text-white py-2 px-4 rounded-lg transition-all duration-300 hover:brightness-110 dark:hover:brightness-75">
                                 Edit Profile
                             </button>
                             <button 

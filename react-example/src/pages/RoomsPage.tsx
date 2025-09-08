@@ -41,8 +41,6 @@ const RoomsPage: React.FC = () => {
     fetchRooms();
   }, []);
 
-  
-
   const handleRoomUpdate = (roomid: number) => {
     setEditRoomId(roomid);
     setIsUpdateOpen(true);
@@ -70,7 +68,7 @@ const RoomsPage: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex justify-center items-center">
-        <div className="text-gray-600 dark:text-gray-400 animate-spin rounded-full"></div>
+        <div className="text-red-500 dark:text-red-500 animate-spin rounded-full"></div>
       </div>
     );
   }
@@ -94,7 +92,7 @@ const RoomsPage: React.FC = () => {
                   <>
                   <Link 
                     to='/registerroom'
-                    className='inline-flex items-center justify-center px-5 py-3 rounded-xl bg-gradient-to-r from-red-600 to-pink-600 text-white font-semibold shadow-md hover:from-red-700 hover:to-pink-700 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] '
+                    className='inline-flex items-center justify-center px-5 py-3 rounded-xl bg-gradient-to-r from-red-600 to-pink-600 text-white font-semibold shadow-md hover:from-red-700 hover:to-pink-700 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
                   >
                     <Plus className='w-5 h-5 mr-2'/>
                     Register a new room
@@ -144,7 +142,7 @@ const RoomsPage: React.FC = () => {
               </div>
             </div>
             <div className="lg:col-span-2">
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {rooms.map((room) => (
                   <RoomCard 
                     key={room.roomid} 

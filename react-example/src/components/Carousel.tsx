@@ -1,7 +1,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import type { Room } from "../api/room.service";
-import type { Booking } from "./BookingsCard";
+import  {type Booking } from "../api/booking.service";
 
 const SmoothCarousel: React.FC<{
     title: string;
@@ -54,7 +54,7 @@ const SmoothCarousel: React.FC<{
                 </div>
             </div>
 
-            <div className="relative h-[425px] flex justify-center items-start pt-8 overflow-hidden">
+            <div className="relative min-h-[500px] flex justify-center items-start pt-4 overflow-hidden">
                 <div className="relative w-full max-w-6xl">
                     {items.map((item, index) => {
                         const offset = index - currentIndex;
@@ -71,6 +71,8 @@ const SmoothCarousel: React.FC<{
                                     isBackground ? 'pointer-events-none' : ''
                                 }`}
                                 style={{
+                                    height:'300px',
+                                    width:'330px',
                                     transform: `translateX(calc(${isSmallScreen ? '-50%' : '-66%'} + ${offset * 200}px)) scale(${isForeground ? 1 : isBackground ? 0.80 : 1})`,
                                     zIndex: isForeground ? 20 : isBackground ? 10 : 0,
                                     opacity: isForeground ? 1 : isBackground ? 0.7 : 0,

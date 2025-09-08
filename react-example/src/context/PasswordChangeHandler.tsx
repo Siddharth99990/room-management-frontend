@@ -8,7 +8,7 @@ const PasswordChangeHandler: React.FC = () => {
     return (
         <ChangePasswordModal 
             isOpen={hasTemporaryPassword} 
-            onClose={() => {}} // Empty function since it can't be closed when password is temporary
+            onClose={() => {}}
         />
     );
 };

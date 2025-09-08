@@ -1,50 +1,101 @@
-import React,{ useEffect, useState } from 'react';
-import {useAuth}from '../context/AuthContext';
-import { Users,Building2,Calendar,Plus,MapPin, CalendarX, Search } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { Users, Building2, Calendar, Plus, MapPin, CalendarX, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SmoothCarousel from '../components/Carousel';
-import BookingCard,{allBookings,type Booking} from '../components/BookingsCard';
+import BookingCard from '../components/BookingsCard';
 import type { Room } from '../api/room.service';
 import RoomCard from '../components/RoomCard';
 import { userService } from '../api/user.service';
 import { roomService } from '../api/room.service';
+import { bookingService, type Booking } from '../api/booking.service';
 
-const HomePage=()=>{
-    const [currentTime,setCurrentTime]=useState(new Date());
-    const [bookingIndex,setBookingIndex]=useState(0);
-    const [roomIndex,setRoomIndex]=useState(0);
-    const [showPreviousBookings,setShowPreviousBookings]=useState(false);
-    const [userLength,setUserLength]=useState(0);
-    const [isLoadingCount,setIsLoadingCount]=useState(true);
-    const [roomsData,setRoomsData]=useState<Room[]>([]);
-    const [isLoadingRooms,setIsLoadingRooms]=useState(true);
-    const {user}=useAuth();
+const HomePage = () => {
+    const [currentTime, setCurrentTime] = useState(new Date());
+    const [bookingIndex, setBookingIndex] = useState(0);
+    const [roomIndex, setRoomIndex] = useState(0);
+    const [showPreviousBookings, setShowPreviousBookings] = useState(false);
+    const [userLength, setUserLength] = useState(0);
+    const [isLoadingCount, setIsLoadingCount] = useState(true);
+    const [roomsData, setRoomsData] = useState<Room[]>([]);
+    const [isLoadingRooms, setIsLoadingRooms] = useState(true);
+    const [userBookings, setUserBookings] = useState<Booking[]>([]);
+    const [isLoadingBookings, setIsLoadingBookings] = useState(true);
+    const { user } = useAuth();
+
+    useEffect(() => {
+        const fetchUserBookings = async () => {
+            if (!user) return;
+
+            setIsLoadingBookings(true);
+            try {
+                const createdBookingsResponse = await bookingService.getAllBookings({
+                    createdBy: user.userid,
+                    limit: 100
+                });
+
+                const allBookingsResponse = await bookingService.getAllBookings({
+                    limit: 100
+                });
+
+                let allUserBookings: Booking[] = [];
+
+                if (createdBookingsResponse.success) {
+                    const createdBookings = createdBookingsResponse.bookings.map(booking => ({
+                        ...booking,
+                        starttime: new Date(booking.starttime),
+                        endtime: new Date(booking.endtime),
+                    }));
+                    allUserBookings.push(...createdBookings);
+                }
+
+                if (allBookingsResponse.success) {
+                    const attendeeBookings = allBookingsResponse.bookings
+                        .filter(apiBooking =>
+                            apiBooking.attendees.some(attendee => attendee.userid === user.userid) &&
+                            !allUserBookings.some(existing => existing.bookingid === apiBooking.bookingid)
+                        )
+                        .map(booking => ({
+                            ...booking,
+                            starttime: new Date(booking.starttime),
+                            endtime: new Date(booking.endtime),
+                        }));
+                    allUserBookings.push(...attendeeBookings);
+                }
+
+                allUserBookings.sort((a, b) => new Date(a.starttime).getTime() - new Date(b.starttime).getTime());
+
+                setUserBookings(allUserBookings);
+            } catch (error) {
+                console.error("Error fetching user bookings:", error);
+                setUserBookings([]);
+            } finally {
+                setIsLoadingBookings(false);
+            }
+        };
+
+        fetchUserBookings();
+    }, [user]);
 
     const getCurrentUserBookings = () => {
-        if (!user) return [];
-        
+        if (!user || userBookings.length === 0) return [];
+
         const currentDate = new Date();
         currentDate.setHours(0, 0, 0, 0);
-        
-        return allBookings.filter(booking => {
+
+        return userBookings.filter(booking => {
             const bookingDate = new Date(booking.starttime);
             bookingDate.setHours(0, 0, 0, 0);
-            
-            const isHost = booking.host.hostid === user.userid || booking.host.hostname === user.name;
-            const isAttendee = booking.attendees.some((attendee:any) => 
-                attendee.attendeeid === user.userid|| attendee.attendeename === user.name
-            );
-            
-            const userRelated = isHost || isAttendee;
-            
-            const dateCondition = showPreviousBookings 
-                ? bookingDate < currentDate 
+
+            const dateCondition = showPreviousBookings
+                ? bookingDate < currentDate
                 : bookingDate >= currentDate;
-            
-            return userRelated && dateCondition;
+
+            return dateCondition;
         });
     };
 
+    
     useEffect(()=>{
         const fetchRooms=async()=>{
             try{
@@ -60,8 +111,7 @@ const HomePage=()=>{
         fetchRooms();
     },[]);
 
-    const userBookings=getCurrentUserBookings();
-    
+    const displayBookings = getCurrentUserBookings();
     const featuredRooms = roomsData.slice(0, 5);
 
     React.useEffect(()=>{
@@ -74,7 +124,7 @@ const HomePage=()=>{
     }
 
     const handleNextBooking = () => {
-        setBookingIndex((prev) => (prev < getCurrentUserBookings.length - 1 ? prev + 1 : prev))
+        setBookingIndex((prev) => (prev < displayBookings.length - 1 ? prev + 1 : prev))
     }
 
     const handlePreviousRoom = () => {
@@ -170,7 +220,7 @@ const HomePage=()=>{
 
                 {user?.role==='admin' &&(
                     <div className='grid md:grid-cols-2 gap-6 mb-8'>
-                        <div className='bg-gradient-to-r from-red-50 to-pink-50 dark:bg-gradient-to-br dark:from-gray-800 dark:to-red-800 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300'>
+                        <div className='bg-white dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-800 dark:to-red-800 backdrop-blur-xl rounded-2xl shadow-lg border border-red-500 dark:border-gray-700/50 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300'>
                             <div className='flex items-center justify-between mb-4'>
                                 <div className='flex items-center space-x-3'>
                                     <div className='w-12 h-12 bg-gradient-to-br from-red-600 to-pink-600 rounded-xl flex items-center justify-center'>
@@ -193,7 +243,7 @@ const HomePage=()=>{
                                 </Link>
                             </div>
                         </div>
-                       <div className='bg-gradient-to-r from-red-50 to-pink-50 dark:bg-gradient-to-br dark:from-gray-800 dark:to-red-800 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300'>
+                       <div className='bg-white dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-800 dark:to-red-800 backdrop-blur-xl rounded-2xl shadow-lg border border-red-500 dark:border-gray-700/50 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300'>
                             <div className='flex items-center justify-between mb-4'>
                                 <div className='flex items-center space-x-3'>
                                     <div className='w-12 h-12 bg-gradient-to-br from-red-600 to-pink-600 rounded-xl flex items-center justify-center'>
@@ -242,10 +292,16 @@ const HomePage=()=>{
                                 </button>
                             </div>
                         </div>
-                        {userBookings.length > 0 ? (
+
+                        {isLoadingBookings ? (
+                            <div className='text-center py-8'>
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+                                <p className='text-lg text-gray-600 dark:text-gray-400'>Loading bookings...</p>
+                            </div>
+                        ) : displayBookings.length > 0 ? (
                             <SmoothCarousel
                                 title=""
-                                items={userBookings}
+                                items={displayBookings}
                                 currentIndex={bookingIndex}
                                 onPrevious={handlePreviousBooking}
                                 onNext={handleNextBooking}
@@ -253,7 +309,7 @@ const HomePage=()=>{
                                     <BookingCard
                                         booking={item as Booking}
                                         isActive={index === currentIndex}
-                                        showCancelButton={!showPreviousBookings && (item as Booking).status === 'confirmed'}
+                                        showActions={false}
                                     />
                                 )}
                             />
@@ -295,7 +351,7 @@ const HomePage=()=>{
                             {features.map((feature, idx) => (
                                 <div
                                     key={idx}
-                                    className="flex items-start space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 hover:bg-white/80 dark:hover:bg-gray-800/80 transition-all duration-300 hover:shadow-lg hover:scale-[1.02]"
+                                    className="flex items-start space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-xl bg-white dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 hover:bg-white/80 dark:hover:bg-gray-800/80 transition-all duration-300 hover:shadow-lg hover:scale-[1.02]"
                                 >
                                     <div className="flex-shrink-0 w-10 sm:w-12 h-10 sm:h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl flex items-center justify-center text-white">
                                         {feature.icon}
@@ -312,7 +368,7 @@ const HomePage=()=>{
                     </div>
                 </div>
 
-                <div className='grid lg:grid-cols-2 lg:gap-16 mt-16'>
+                <div className='grid lg:grid-cols-2 lg:gap-16 mt-16 '>
                     <div className='order-2 lg:order-2'>
                         <div className='flex items-center justify-between mb-6'> 
                             <h2 className='text-2xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white leading-tight'>

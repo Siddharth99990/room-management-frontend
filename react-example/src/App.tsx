@@ -11,6 +11,7 @@ import HomePage from "./pages/HomePage";
 import RegisterEmployeePage from "./pages/RegisterEmployeePage";
 import BookRoomPage from "./pages/BookRoomPage";
 import RegisterRoomPage from "./pages/RegisterRoomPage";
+import BookingsPage from "./pages/BookingsPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -38,6 +39,14 @@ const router = createBrowserRouter(
         element={
           <ProtectedRoute>
             <BookRoomPage/>
+          </ProtectedRoute>
+        }
+      />
+      <Route 
+        path='/bookings'
+        element={
+          <ProtectedRoute>
+            <BookingsPage/>
           </ProtectedRoute>
         }
       />

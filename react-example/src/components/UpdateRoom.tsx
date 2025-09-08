@@ -43,8 +43,7 @@ const UpdateRoomModal: React.FC<UpdateRoomModalProps> = ({
     const [showConfirm, setShowConfirm] = useState(false);
     const [originalRoom, setOriginalRoom] = useState<Room | null>(null);
     const [loading, setLoading] = useState(true);
-    
-    // Equipment search states
+
     const [equipmentSearch, setEquipmentSearch] = useState("");
     const [showEquipmentDropdown, setShowEquipmentDropdown] = useState(false);
 

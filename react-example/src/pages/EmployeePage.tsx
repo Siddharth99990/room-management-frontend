@@ -129,7 +129,7 @@ const EmployeesPage: React.FC = () => {
             </div>
           </div>
           <div className='lg:col-span-2'>
-            <div className='grid grid-cols-2 gap-6'>
+            <div className='grid grid:cols-1 md:grid-cols-2 gap-6'>
               {employees.map((employee) => (
                 <EmployeeCard 
                   key={employee.userid} 

@@ -1,5 +1,5 @@
 import React, { useState,useEffect} from "react";
-import { Building2, Building2Icon, MapPin, Monitor, Shield, UserCheck, Users } from "lucide-react";
+import { Building2, Building2Icon, Cog, MapPin, Monitor, Users } from "lucide-react";
 import { roomService, type Room } from "../api/room.service";
 
 interface RegisterForm{
@@ -141,9 +141,9 @@ const RegisterRoomPage = () => {
             description:'Register new rooms onto the platform'
         },
         {
-            icon:<Shield className="w-6 h-6"/>,
-            title:'Role Based Access',
-            description:'Control what the user can access based on roles'
+            icon:<Cog className="w-6 h-6"/>,
+            title:"Feature based rooms",
+            description:"Specify features for in a dynamic manner"
         }
     ]
 
@@ -186,7 +186,7 @@ const RegisterRoomPage = () => {
                         <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 p-6 sm:p-8 w-full max-w-md mx-auto">
                             <div className="text-center mb-6 sm:mb-8">
                                 <div className="w-12 sm:w-16 h-12 sm:h-16 bg-gradient-to-br from-red-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                    <UserCheck className="w-6 sm:w-8 h-6 sm:h-8 text-white" />
+                                    <Building2 className="w-6 sm:w-8 h-6 sm:h-8 text-white" />
                                 </div>
                                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">
                                     Register Room

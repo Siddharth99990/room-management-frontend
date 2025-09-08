@@ -1,95 +1,30 @@
-import React from "react";
-import {Calendar,Building,Users, User, Clock } from "lucide-react";
-
-export interface Booking{
-    id:number;
-    starttime:Date;
-    endtime:Date;
-    roomno:number;
-    host:{
-        hostid:number,
-        hostname:string
-    };
-    status:'confirmed'|'cancelled',
-    attendees:{
-        attendeeid:number,
-        attendeename:string,
-        invitestatus:'invited'|'confirmed'|'rejected'
-    }[];
-};
-
-export const allBookings: Booking[] = [
-        {
-            id: 1,
-            starttime: new Date('2025-09-05T09:00:00'), 
-            endtime: new Date('2025-09-05T10:30:00'),
-            roomno: 1,
-            host: { hostid: 1, hostname: "Nirmala" },
-            status: 'confirmed',
-            attendees: [
-                { attendeeid: 2, attendeename: "siddharth", invitestatus: 'confirmed' },
-                { attendeeid: 3, attendeename: "Honey", invitestatus: 'invited' }
-            ]
-        },
-        {
-            id: 2,
-            starttime: new Date('2025-09-04T14:00:00'), 
-            endtime: new Date('2025-09-04T15:30:00'),
-            roomno: 2,
-            host: { hostid: 2, hostname: "siddharth" },
-            status: 'confirmed',
-            attendees: [
-                { attendeeid: 1, attendeename: "Nirmala", invitestatus: 'confirmed' },
-                { attendeeid: 4, attendeename: "Arjun Das", invitestatus: 'rejected' }
-            ]
-        },
-        {
-            id: 3,
-            starttime: new Date('2025-09-06T11:00:00'), 
-            endtime: new Date('2025-09-06T12:00:00'),
-            roomno: 3,
-            host: { hostid: 1, hostname: "Nirmala" },
-            status: 'confirmed',
-            attendees: [
-                { attendeeid: 2, attendeename: "siddharth", invitestatus: 'confirmed' }
-            ]
-        },
-        {
-            id: 4,
-            starttime: new Date('2025-09-01T10:00:00'), 
-            endtime: new Date('2025-09-01T11:30:00'),
-            roomno: 1,
-            host: { hostid: 1, hostname: "Nirmala" },
-            status: 'confirmed',
-            attendees: [
-                { attendeeid: 4, attendeename: "Arjun Das", invitestatus: 'confirmed' }
-            ]
-        },
-        {
-            id: 5,
-            starttime: new Date('2025-09-02T13:00:00'), 
-            endtime: new Date('2025-09-02T14:00:00'),
-            roomno: 2,
-            host: { hostid: 2, hostname: "siddharth" },
-            status: 'cancelled',
-            attendees: [
-                { attendeeid: 3, attendeename: "Honey", invitestatus: 'invited' }
-            ]
-        }
-    ];
+import React, { useState } from "react";
+import { Calendar, Building, Users, User, Clock, MapPin, Edit, X } from "lucide-react";
+import { bookingService } from "../api/booking.service";
+import { useAuth } from "../context/AuthContext";
+import { type Booking } from "../api/booking.service";
 
 interface BookingCardProps {
     booking: Booking;
     isActive?: boolean;
-    showCancelButton?: boolean; 
+    onDelete?: (bookingid: number) => void;
+    onUpdate?: (bookingid: number) => void;
+    showActions?:boolean;
 }
 
-const BookingCard: React.FC<BookingCardProps> = ({ 
-    booking, 
-    isActive = true, 
+const BookingCard: React.FC<BookingCardProps> = ({
+    booking,
+    isActive = true,
+    onDelete,
+    onUpdate,
+    showActions,
 }) => {
+    const { user } = useAuth();
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
+
     const getStatusColor = (status: string) => {
-        switch(status){
+        switch (status) {
             case 'confirmed': return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300';
             case 'cancelled': return 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300';
             default: return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300';
@@ -97,123 +32,210 @@ const BookingCard: React.FC<BookingCardProps> = ({
     };
 
     const formatTime = (date: Date) => {
-        return date.toLocaleTimeString('en-IN', {
+        return new Date(date).toLocaleTimeString('en-IN', {
             hour: '2-digit',
             minute: '2-digit',
             hour12: true
         });
-    }
+    };
 
     const formatDate = (date: Date) => {
-        return date.toLocaleDateString('en-IN', {
+        return new Date(date).toLocaleDateString('en-IN', {
             weekday: 'short',
             month: 'short',
             day: 'numeric'
         });
-    }
+    };
 
-    const getInviteStatusColor = (status: string) => {
-        switch(status){
-            case 'confirmed': return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300';
-            case 'invited': return 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300';
-            case 'rejected': return 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300';
-            default: return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300';
+    const handleCancel = async () => {
+        if (!user?.userid) {
+            alert('User authentication required');
+            return;
+        }
+
+        try {
+            setIsDeleting(true);
+            await bookingService.cancelBooking(booking.bookingid, user.userid);
+            onDelete?.(booking.bookingid);
+        } catch (error: any) {
+            console.error('Failed to cancel booking:', error);
+            alert(`Failed to cancel booking: ${error.message}`);
+        } finally {
+            setIsDeleting(false);
+            setShowConfirm(false);
         }
     };
 
-    // const handleCancel = () => {
-    //     if (onCancel) {
-    //         onCancel(booking.id);
-    //     }
-    // };
+    const handleCancelClick = () => {
+        setShowConfirm(true);
+    };
 
-    return(
-        <div className={`bg-gradient-to-br from-red-500 to-pink-500 dark:bg-gradient-to-br dark:from-gray-800 dark:to-red-800 backdrop-blur-xl rounded-xl shadow-lg border border-red-500 dark:border-gray-700 p-6 w-80 transition-all duration-300 ${
-            isActive ? 'hover:shadow-xl hover:-translate-y-1' : ''
-        }`}>
-            <div className="flex justify-between items-start mb-4">
-                <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-semibold text-white dark:text-white bg-red-300 dark:bg-gray-700 px-2 py-1 rounded transition-colors duration-300">
-                            ID: {booking.id}
+    const handleCancelConfirm = () => {
+        setShowConfirm(false);
+    };
+
+    const handleUpdate = () => {
+        onUpdate?.(booking.bookingid);
+    };
+
+    const canModify = user?.role === 'admin' || user?.userid === booking.createdBy.userid;
+    const isPastBooking = new Date(booking.endtime) < new Date();
+
+    return (
+        <div className={`flex flex-col bg-white dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-800 dark:to-red-800 backdrop-blur-xl rounded-xl shadow-lg border border-red-500 dark:border-gray-700 p-6 transition-all duration-300 ${isActive ? 'hover:shadow-xl hover:-translate-y-1' : ''
+            }`}>
+            <div className="flex-grow">
+                <div className="flex justify-between items-start mb-4">
+                    <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className="text-xs font-semibold text-white bg-red-500 dark:bg-gray-700 px-2 py-1 rounded transition-colors duration-300">
+                                ID: {booking.bookingid}
+                            </span>
+                            {isPastBooking && (
+                                <span className="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded">
+                                    Past
+                                </span>
+                            )}
+                        </div>
+
+                        {booking.title && (
+                            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-1 leading-tight">
+                                {booking.title}
+                            </h3>
+                        )}
+
+                        {booking.description && (
+                            <p className="text-sm text-gray-600 dark:text-gray-300 mb-2 leading-relaxed">
+                                {booking.description.length > 100
+                                    ? `${booking.description.substring(0, 100)}...`
+                                    : booking.description
+                                }
+                            </p>
+                        )}
+                    </div>
+
+                    <div className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 ${getStatusColor(booking.status)}`}>
+                        {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                    </div>
+                </div>
+
+                <div className="space-y-3 mb-4">
+                    <div className="flex items-center text-gray-800 dark:text-white transition-colors duration-300">
+                        <Building className="w-4 h-4 mr-2 flex-shrink-0" />
+                        <span className="text-sm">
+                            {booking.roomid.roomname ? `${booking.roomid.roomname} (Room ${booking.roomid.roomid})` : `Room ${booking.roomid.roomid}`}
                         </span>
                     </div>
-                </div>
-                <div className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 ${getStatusColor(booking.status)}`}>
-                    {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                </div>
-            </div>
 
-            <div className="space-y-3 mb-4">
-                <div className="flex items-center text-white dark:text-gray-400 transition-colors duration-300">
-                    <Building className="w-4 h-4 mr-2 flex-shrink-0"/>
-                    <span className="text-sm">Room {booking.roomno}</span>
-                </div>
+                    {booking.roomid.roomlocation && (
+                        <div className="flex items-center text-gray-800 dark:text-white transition-colors duration-300">
+                            <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
+                            <span className="text-sm">{booking.roomid.roomlocation}</span>
+                        </div>
+                    )}
 
-                <div className="flex items-center text-white dark:text-gray-400 transition-colors duration-300">
-                    <User className="w-4 h-4 mr-2 flex-shrink-0"/>
-                    <span className="text-sm">Host: {booking.host.hostname}</span>
-                </div>
+                    <div className="flex items-center text-gray-800 dark:text-white transition-colors duration-300">
+                        <User className="w-4 h-4 mr-2 flex-shrink-0" />
+                        <span className="text-sm">Host: {booking.createdBy.name}</span>
+                    </div>
 
-                <div className="flex items-center text-white dark:text-gray-400 transition-colors duration-300">
-                    <Calendar className="w-4 h-4 mr-2 flex-shrink-0"/>
-                    <span className="text-sm">Date: {formatDate(booking.starttime)}</span>
-                </div>
+                    <div className="flex items-center text-gray-800 dark:text-white transition-colors duration-300">
+                        <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
+                        <span className="text-sm">Date: {formatDate(booking.starttime)}</span>
+                    </div>
 
-                <div className="flex items-center text-white dark:text-gray-400 transition-colors duration-300">
-                    <Clock className="w-4 h-4 mr-2 flex-shrink-0"/>
-                    <span className="text-sm">Time: {formatTime(booking.starttime)} - {formatTime(booking.endtime)}</span>
-                </div>
+                    <div className="flex items-center text-gray-800 dark:text-white transition-colors duration-300">
+                        <Clock className="w-4 h-4 mr-2 flex-shrink-0" />
+                        <span className="text-sm">Time: {formatTime(booking.starttime)} - {formatTime(booking.endtime)}</span>
+                    </div>
 
-                <div className="flex items-center text-white dark:text-gray-400 transition-colors duration-300">
-                    <Users className="w-4 h-4 mr-2 flex-shrink-0"/>
-                    <span className="text-sm">{booking.attendees.length} attendee{booking.attendees.length !== 1 ? 's' : ''}</span>
-                </div>
-            </div>
-
-            {booking.attendees.length > 0 && (
-                <div className="mb-4">
-                    <h4 className="font-semibold text-white dark:text-gray-300 mb-2 transition-colors duration-300">
-                        Attendees ({booking.attendees.length})
-                    </h4>
-                    <div className="space-y-2 max-h-24 overflow-y-auto">
-                        {booking.attendees.map((attendee) => (
-                            <div key={attendee.attendeeid} className="flex items-center justify-between text-sm">
-                                <span className="text-white dark:text-gray-400 transition-colors duration-300">
-                                    {attendee.attendeename}
-                                </span>
-                                <span className={`px-2 py-1 rounded-md text-xs transition-all duration-300 ${getInviteStatusColor(attendee.invitestatus)}`}>
-                                    {attendee.invitestatus.charAt(0).toUpperCase() + attendee.invitestatus.slice(1)}
-                                </span>
-                            </div>
-                        ))}
+                    <div className="flex items-center text-gray-800 dark:text-white transition-colors duration-300">
+                        <Users className="w-4 h-4 mr-2 flex-shrink-0" />
+                        <span className="text-sm">{booking.attendees.length} attendee{booking.attendees.length !== 1 ? 's' : ''}</span>
                     </div>
                 </div>
-            )}
 
-            {/* <div className="flex gap-2 pt-4 border-t border-gray-200 dark:border-gray-700 transition-colors duration-300">
-                {booking.status === 'confirmed' ? (
-                    <>
-                        <button className="flex-1 bg-gradient-to-r from-red-600 to-pink-600 text-white py-2 px-4 rounded-lg font-medium hover:from-red-700 hover:to-pink-800 transition-all duration-300 hover:scale-105 hover:shadow-lg">
-                            View Details
-                        </button>
-                        {showCancelButton && (
-                            <button 
-                                onClick={handleCancel}
-                                className="px-4 py-2 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-800 transition-all duration-300 hover:scale-105 font-medium"
-                            >
-                                Cancel
-                            </button>
-                        )}
-                    </>
-                ) : (
-                    <div className="flex-1 bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 py-2 px-4 rounded-lg text-center font-medium cursor-not-allowed">
-                        Cancelled
+                {booking.attendees.length > 0 && (
+                    <div className="mb-4">
+                        <h4 className="font-semibold text-gray-800 dark:text-white mb-2 transition-colors duration-300">
+                            Attendees ({booking.attendees.length})
+                        </h4>
+                        <div className="space-y-2 max-h-24 overflow-y-auto">
+                            {booking.attendees.map((attendee) => (
+                                <div key={attendee.userid} className="flex items-center text-sm">
+                                    <span className="text-gray-800 dark:text-white transition-colors duration-300">
+                                        {attendee.name}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
-            </div> */}
+            </div>
+
+                    {showActions && (
+                <>
+                    {canModify && booking.status === 'confirmed' && (
+                        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                            {showConfirm ? (
+                                <div className="flex flex-col gap-2">
+                                    <p className="text-sm text-gray-700 dark:text-gray-300 text-center">
+                                        Cancel "{booking.title || `Booking ${booking.bookingid}`}"?
+                                    </p>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={handleCancel}
+                                            disabled={isDeleting}
+                                            className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-all duration-300 text-sm disabled:opacity-50"
+                                        >
+                                            {isDeleting ? "Cancelling..." : "Yes, Cancel"}
+                                        </button>
+                                        <button
+                                            onClick={handleCancelConfirm}
+                                            className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg transition-all duration-300 text-sm"
+                                        >
+                                            Keep
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex gap-2">
+                                    {onUpdate && !isPastBooking && (
+                                        <button
+                                            onClick={handleUpdate}
+                                            className="flex-1 flex items-center justify-center px-3 py-2 bg-gradient-to-br from-red-600 to-pink-600 text-white rounded-lg hover:brightness-75 dark:hover:brightness-75 transition-all duration-300 text-sm font-medium"
+                                        >
+                                            <Edit className="w-4 h-4 mr-1" />
+                                            Update
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={handleCancelClick}
+                                        className="flex-1 flex items-center justify-center px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-300 text-sm font-medium"
+                                    >
+                                        <X className="w-4 h-4 mr-1" />
+                                        Cancel
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {(!canModify || booking.status === 'cancelled' || isPastBooking) && (
+                        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <div className="text-center text-sm text-gray-500 dark:text-gray-400">
+                                {booking.status === 'cancelled'
+                                    ? 'This booking has been cancelled'
+                                    : isPastBooking
+                                        ? 'This booking has ended'
+                                        : 'You cannot modify this booking'
+                                }
+                            </div>
+                        </div>
+                    )}
+                </>
+            )}
         </div>
     );
 };
-
 export default BookingCard;
